@@ -1,5 +1,5 @@
-True-casing with a hidden Markov model (aka "Winter Camp")
-==========================================================
+True-casing with a hidden Markov model
+======================================
 
 Learning goals
 --------------
