@@ -106,6 +106,21 @@ it up, or ask a colleague or teacher.
 
 **TODO**: how can we encourage learning at this stage?
 
+Note that these questions are for discussion and to promote the free flow of ideas. Feel free to get creative even if you don't end up with the "right" answer.
+
+1. The paper lists some examples of when truecasing might be useful (news transcripts, automatic speech recognition, titles, etc.) Can you think of any other examples when this would be useful?
+2. Many languages do not have upper and lower case letters. How could the concept behind truecasing be applied in these languages. For example, the paper notes that "Accents can be viewed as additional surface forms or alternate word casings."
+3. What case is a number? For example, would you label "42" as uppercase or lowercase?
+4. For formula 1, given in section 2.2.1, label all of the variables (P, λ, and w). They don't explicitly state what "λuniform P0" is. What would you guess that it mean? In prose, write out what you think the formula means.
+5. n section 2.2.2, they describe which features are included in each node in the trellis. Which features are included in the trellis? Of these features, which would you predict to be most useful for predicting case? Can you think of any additional features which might be useful to include?
+6. "The trellis can be viewed as a Hidden Markov Model (HMM) computing the state sequence which best explains the observations." What are the states of the HMM? What are the observations? 
+7. What are transition probabilities? How are they learned? (hint: the symbol for them is λ.)
+8. The researchers use a trigram model to predict case. How might the results have been different if they used a bigram model? or 4 tokens? 
+9. Section 2.3 discusses two possible approaches for dealing with Unknown Words. What are they? What are the advantages and disadvantages of each one?
+10. For mixed-case tokens, there is no clear rule on which letters in the word are capitalized. Consider, for example "iPhone", "LaTeX", "JavaScript", and "McDonald". What are some possible approaches to restoring case to mixed-case tokens?
+11. What data is this model trained on? What data is this model trained on? Why did the researchers choose these datasets? What are the benefits and disadvantages of these datasets?
+12. What are some of the quantitative errors described in section 3.2? What approaches, if any, could help to prevent these errors?
+
 ### Part 2: data and software
 
 **TODO**: get some relevant data (maybe a year of the WMT data linked below?),
