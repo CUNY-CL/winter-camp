@@ -161,11 +161,7 @@ Within that folder you will see two files, `hunpos-tag` and `hunpos-train`.
 go to the command line and enter:  
 
 
-```
-    
-    $ curl -compressed -C - http://data.statmt.org/news-crawl/en/news.2007.en.shuffled.deduped.gz -o "news.2007.gz"
-    
-```
+```  $ curl -compressed -C - http://data.statmt.org/news-crawl/en/news.2007.en.shuffled.deduped.gz -o "news.2007.gz" ```
    
    Please note that you can replace the “2007” from `news.2007.gz` above to whatever year you’d like within the range, 2007-2020.
     
