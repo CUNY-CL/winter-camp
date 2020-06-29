@@ -143,8 +143,45 @@ end up with the "right" answer.
 
 ### Part 2: data and software
 
-**TODO**: get some relevant data (maybe a year of the WMT data linked below?),
-tokenize it, and install HunPos. Provide very detailed instructions for this.
+#### What to do.
+
+- To install HunPoS: 
+   - [ ] In your web browser, visit the [HunPos repository](https://code.google.com/archive/p/hunpos/downloads).
+   - [ ] Download the appropriate file for your platform:
+     - On Mac OS X, download `hunpos-1.0-macosx.tgz`
+     - On Windows 10, download `hunpos-1.0-win.zip`
+     - On Linux (x86), download `hunpos-1.0-linus.tgz`
+   - [ ] A file called `hunpos-1.0-macosx`, `hunpos-1.0-win.zip` or 
+`hunpos-1.0-win.zip` will appear in the directory in which you 
+downloaded the source code (e.g., `Downloads`). Decompress that directory.
+   - [ ] Enter the directory created by the previous step. 
+Within that folder you will see two files, `hunpos-tag` and `hunpos-train`.
+
+- To get one year’s worth of WMT News Crawl data for English from 2007-2020, 
+go to the command line and enter:  
+    
+    $ curl -compressed -C - http://data.statmt.org/news-crawl/en/news.2007.en.shuffled.deduped.gz -o "news.2007.gz"
+   
+   - Please note that you can replace the “2007” from `news.2007.gz` above to whatever year you’d like within the range, 2007-2020.
+    
+- To preprocess the data, write a script that: 
+  - [ ] normalizes the data 
+  - [ ] tokenizes the data 
+  - [ ] rejoins the tokenized data with whitespace added
+  - [ ] writes the data to a file
+  
+ #### Some background notes on HunPoS.  
+ 
+ - **Architecture**: HunPoS uses second order Markov models for tagging, where the transition states represent tags, and the observations represent words.  Transition trigram probabilities are based on pairs of states, (i.e. tags), and emission probabilities are based on particular observations (i.e. words), 
+ given the current and previous tags.  See the formula below, which is based on the viterbi algorithm--
+ 
+ 
+ 
+  
+  
+
+
+
 
 ### Part 3: training
 
