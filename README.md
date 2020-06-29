@@ -159,10 +159,15 @@ Within that folder you will see two files, `hunpos-tag` and `hunpos-train`.
 
 - To get one year’s worth of WMT News Crawl data for English from 2007-2020, 
 go to the command line and enter:  
+
+
+```
     
     $ curl -compressed -C - http://data.statmt.org/news-crawl/en/news.2007.en.shuffled.deduped.gz -o "news.2007.gz"
+    
+```
    
-   - Please note that you can replace the “2007” from `news.2007.gz` above to whatever year you’d like within the range, 2007-2020.
+   Please note that you can replace the “2007” from `news.2007.gz` above to whatever year you’d like within the range, 2007-2020.
     
 - To preprocess the data, write a script that: 
   - [ ] normalizes the data 
@@ -172,7 +177,7 @@ go to the command line and enter:
   
  #### Some background notes on HunPoS.  
  
-*Architecture*: HunPoS uses second order Markov models for tagging, where the transition states represent tags, and the observations represent words.  Transition trigram probabilities are based on pairs of states, (i.e. tags), and emission probabilities are based on particular observations (i.e. words), 
+- **Architecture**: HunPoS uses second order Markov models for tagging, where the transition states represent tags, and the observations represent words.  Transition trigram probabilities are based on pairs of states, (i.e. tags), and emission probabilities are based on particular observations (i.e. words), 
 given the current and previous tags.  See the formula below, which is based on the viterbi algorithm--
  
   <p align="center"> <img width="460" height="60" src="https://user-images.githubusercontent.com/43279348/86035217-f40a2900-ba09-11ea-85b0-bc39403e90f4.jpg"> </p>
@@ -185,11 +190,11 @@ Note that the Viterbi algorithm efficiently finds the best path by merging paths
 
 Saving the intermediate results of these prefix paths to speed up calculations is an example of dynamic programming, without which it would take too long to consider every possible path. Also note that Viterbi’s capacity to calculate the probability of the best sequence of tags makes it preferable to other algorithms that can only make a series of independent tag predictions for each word, like Naive Bayes.  That is, because Naive Bayes does not consider the influence that other tags in the sequence may have on each other, its predictive power is not as robust.  
 
-*Adjustable parameters*: Transition and emission probabilities can be parameterized, according to the needs of your experiment.  For example, emission probabilities that are based on pairs of tags are preferable for large data sets--i.e., *P(w<sub>i</sub>|t<sub>i-1</sub>, t<sub>i</sub> )*--whereas probabilities based solely on the current tag-- i.e., P(w<sub>i</sub>|t<sub>i</sub>)--are preferable for smaller data sets.
+- **Adjustable parameters**: Transition and emission probabilities can be parameterized, according to the needs of your experiment.  For example, emission probabilities that are based on pairs of tags are preferable for large data sets--i.e., *P(w<sub>i</sub>|t<sub>i-1</sub>, t<sub>i</sub> )*--whereas probabilities based solely on the current tag-- i.e., P(w<sub>i</sub>|t<sub>i</sub>)--are preferable for smaller data sets.
      
-*Smoothing*:  A context-dependent variant of linear interpolation is used.
+- **Smoothing**:  A context-dependent variant of linear interpolation is used.
 
-*Strengths*:  
+- **Strengths**:  
   - Default emission probabilities yield 10% higher accuracies than those of previous HMMs, like TnT.
   - Handles unseen words by using a morphological analyzer, rather than relying on a machine-readable dictionary.
   - Handles large tag sets without compromising training and tagging performance.  
