@@ -254,14 +254,14 @@ large files. Rather it should process the data line by line. For instance, if
 the gold data file handle is `gold` and the predicted data file handle is
 `pred`, part of your script might resemble the following.
 
-    ```python
-    for (gold_line, pred_line) in zip(gold, pred):
-        gold_tokens = gold_line.split()
-        pred_tokens = pred_line.split()
-        assert len(gold_tokens) == len(pred_tokens)
-        for (gold_token, pred_token) in zip(gold_tokens, pred_tokens):
-            ...
-    ```
+```python
+for (gold_line, pred_line) in zip(gold, pred):
+    gold_tokens = gold_line.split()
+    pred_tokens = pred_line.split()
+    assert len(gold_tokens) == len(pred_tokens)
+    for (gold_token, pred_token) in zip(gold_tokens, pred_tokens):
+        ...
+```
 
 ### Part 6: style transfer
 
