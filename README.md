@@ -199,13 +199,8 @@ best path by merging paths that share prefixes (e.g. the two sequences "NNN" an
 "NNV" share the prefix "NN"). This merging calculates the probability of that
 prefix only once, as you can see in the figure below.
 
-```{=html}
-<p align="center">
-```
-`<img width="460" height="300" src="https://user-images.githubusercontent.com/43279348/86036506-fcfbfa00-ba0b-11ea-819f-6a9f2bf86576.jpg">`{=html}
-```{=html}
-</p>
-```
+<p align="center"><img width="460" height="300" src="https://user-images.githubusercontent.com/43279348/86036506-fcfbfa00-ba0b-11ea-819f-6a9f2bf86576.jpg"></p>
+
 Saving the intermediate results of these prefix paths to speed up calculations
 is an example of [*dynamic
 programming*](https://en.wikipedia.org/wiki/Dynamic_programming), without which
