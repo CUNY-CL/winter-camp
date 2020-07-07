@@ -31,17 +31,13 @@ and be somewhat comfortable using data structures like lists and dictionaries,
 calling functions, opening files, importing built-in modules, and reading
 technical documentation.
 
-While you need not be familiar with [hidden Markov
-models](https://en.wikipedia.org/wiki/Hidden_Markov_model), one of the
-technologies we use, it may be useful to learn a bit about this technology
-before beginning. Hidden Markov models are covered in detail by many textbooks
-in speech and language processing, including Jelinek 1997 (chap. 2) and
-Eisenstein 2019 (chap. 7).
+You do not need to be familiar with the (conditional random field models)[https://en.wikipedia.org/wiki/Conditional_random_field]
+(Lafferty et al. 2001), one of the technologies we use, but it may be useful to read a bit about this technology before beginning.
 
 The exercise is intended to take several days; at the [Graduate
 Center](https://www.gc.cuny.edu/Page-Elements/Academics-Research-Centers-Initiatives/Doctoral-Programs/Linguistics/Linguistics),
 master's students in computational linguistics often complete it as a
-supplemental exercise over winter break, after a semester of experience. (Hence
+supplemental exercise over winter break, after a semester of experience learning Python. (Hence
 the name "Winter Camp.")
 
 ### Software requirements
@@ -50,7 +46,7 @@ This tutorial assumes you have access to a UNIX-style command line interface:
 
 -   On Windows 10, you access a command line using [Windows Subsystem for
     Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10); the
-    Ubuntu distributions are particularly easy to use.
+    Ubuntu "distro" (distribution) is particularly easy to use.
 -   On Mac OS X, you can access the command line interface by opening
     Terminal.app.
 
@@ -79,7 +75,7 @@ between upper- and lower-case words. Such writing systems are said to be
 *unicameral*. While casing can carry important semantic information (compare
 *bush* vs. *Bush*), this distinction also can introduce further "sparsity" to
 our data. Or as Church (1995) puts it, do we **really** need to keep totally
-separate statistics for *hurricane* or *Hurricane* or can we merge them?
+separate statistics for *hurricane* or *Hurricane*, or can we merge them?
 
 In most cases, speech and language processing systems, including machine
 translation and speech recognition engines, choose to ignore casing
@@ -143,7 +139,10 @@ end up with the "right" answer.
 
 ### Part 2: data and software
 
-#### What to do.
+#### What to do
+
+TODO(egarza): update Mac OS X instructions for CRFSuite.
+TODO(kbg): update Linux and WSL instructions for CRFSuite.
 
 1. To install HunPoS: 
    - [ ] In your web browser, visit the [HunPos repository](https://code.google.com/archive/p/hunpos/downloads).
@@ -157,68 +156,48 @@ downloaded the source code (e.g., `Downloads`). Decompress that directory.
    - [ ] Enter the directory created by the previous step. 
 Within that folder you will see two files, `hunpos-tag` and `hunpos-train`.
 
-2. To get one year’s worth of WMT News Crawl data for English from 2007-2020, 
-go to the command line and enter:  
+2. Obtain some English data. Some tokenize English data from the Wall St. Journal (1989-1990) portion of the Penn Treebank is available [here](http://wellformedness.com/courses/wintercamp/data/wsj/). These files cannot be distributed beyond our "research group", so ask Kyle for the password. Alternatively, one can download a year’s worth of English data from the WMT News Crawl (2007) by executing the following from the command line.
 
-
-```  $ curl -compressed -C - http://data.statmt.org/news-crawl/en/news.2007.en.shuffled.deduped.gz -o "news.2007.gz" ```
+    ```bash
+    curl -compressed -C - http://data.statmt.org/news-crawl/en/news.2007.en.shuffled.deduped.gz -o "news.2007.gz"
+    ```
    
-   Please note that you can replace the “2007” from `news.2007.gz` above to whatever year you’d like within the range, 2007-2020.
-    
-3. To preprocess the data, write a script that: 
-  - [ ] normalizes the data 
-  - [ ] tokenizes the data 
-  - [ ] rejoins the tokenized data with whitespace added
-  - [ ] writes the data to a file
+Please note that you can replace the “2007” from `news.2007.gz` above to whatever year you’d like from 2007 to 2019.
+If you choose to use the News Crawl data, you will need to tokenize it and split into training, development, and testing sets.
+Therefore, write a Python script that
+  - [ ] tokenizes the data (e.g., using [`nltk.word_tokenize`](https://www.nltk.org/_modules/nltk/tokenize/punkt.html#PunktLanguageVars.word_tokenize)),
+  - [ ] randomly splits the data into training (80%), development (10%), and testing (10%), and
+  - [ ] writes the data to separate files (`train.tok`, `dev.tok`, and `test.tok`).
   
- #### Some background notes on HunPoS.  
+ #### Some background on CRFSuite  
  
-**Architecture**: HunPoS uses second order Markov models for tagging, where the transition states represent tags, and the observations represent words.  Transition trigram probabilities are based on pairs of states, (i.e. tags), and emission probabilities are based on particular observations (i.e. words), 
-given the current and previous tags.  See the formula below, which is based on the viterbi algorithm--
+**Architecture**: True-casing is a *structured classification* problem, because the casing of one word depends on nearby words. While one could possibly choose to ignore this dependency (as would be necessary with a simple [Naïve Bayes](https://en.wikipedia.org/wiki/Naive_Bayes_classifier) or [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression) classifier), CRFSuite uses a first-order Markov model in which states represent casing tags, and the observations represent tokens. The best sequence of tags for a given sentence are computed using the [Viterbi algorithm](https://en.wikipedia.org/wiki/Viterbi_algorithm), which finds the best path by merging paths that share prefixes (e.g. the two sequences “NNN” and “NNV” share the prefix “NN”). This merging calculates the probability of that prefix only once, as you can see in the figure below.
+
+<p align="center"> <img width="460" height="300" src="https://user-images.githubusercontent.com/43279348/86036506-fcfbfa00-ba0b-11ea-819f-6a9f2bf86576.jpg"> </p>
+
+Saving the intermediate results of these prefix paths to speed up calculations is an example of [*dynamic programming*](https://en.wikipedia.org/wiki/Dynamic_programming), without which it would take too long to score every possible path.
  
-  <p align="center"> <img width="460" height="60" src="https://user-images.githubusercontent.com/43279348/86035217-f40a2900-ba09-11ea-85b0-bc39403e90f4.jpg"> </p>
- 
---where *P( t<sub>i</sub> | t<sub>i-1</sub>, t<sub>i-2</sub> )* is the transition probability, *P( w<sub>i</sub> | t<sub>i-1</sub>, t<sub>i</sub> )* is the          emission   probability, and *P( t<sub>T+1</sub> | t<sub>T</sub> )* is the end-of-sequence marker. 
-   
-Note that the Viterbi algorithm efficiently finds the best path by merging paths that share prefixes (e.g. the two sequences “NNN” and “NNV” share the prefix “NN”) .  This merging calculates the probability of that prefix only once, as you can see in **Figure 1** below--
-
- <p align="center"> <img width="460" height="300" src="https://user-images.githubusercontent.com/43279348/86036506-fcfbfa00-ba0b-11ea-819f-6a9f2bf86576.jpg"> </p>
-
-Saving the intermediate results of these prefix paths to speed up calculations is an example of dynamic programming, without which it would take too long to consider every possible path. Also note that Viterbi’s capacity to calculate the probability of the best sequence of tags makes it preferable to other algorithms that can only make a series of independent tag predictions for each word, like Naïve Bayes.  That is, because Naïve Bayes does not consider the influence that other tags in the sequence may have on each other, its predictive power is not as robust.  
-
-**Adjustable parameters**: Transition and emission probabilities can be parameterized, according to the needs of your experiment.  For example, emission probabilities that are based on pairs of tags are preferable for large data sets--i.e., *P(w<sub>i</sub>|t<sub>i-1</sub>, t<sub>i</sub> )*--whereas probabilities based solely on the current tag-- i.e., P(w<sub>i</sub>|t<sub>i</sub>)--are preferable for smaller data sets.
-     
-**Smoothing**:  A context-dependent variant of linear interpolation is used.
-
-**Strengths**:  
-  - Default emission probabilities yield 10% higher accuracies than those of previous HMMs.
-  - Handles unseen words by using a morphological analyzer, rather than relying on a machine-readable dictionary.
-  - Handles large tag sets without compromising training and tagging performance.  
-
 ### Part 3: training
 
-**TODO**: convert to two-column format and call `hunpos-train`. Also introduce
+**TODO**: apply feature extractor to generate data and call `crfsuite learn`. Also introduce
 `case.py` and talk about how it works.
 
 ### Part 4: prediction
 
-**TODO**: call `hunpos-tag` and convert back to tokenized format.
+**TODO**: call `crfsuite tag` and convert back to tokenized format.
 
 ### Part 5: evaluation
 
-So, how good your true-caser? There are many ways we can imagine measuring this.
+So, how good is your true-caser? There are many ways we can imagine measuring this.
 One could ask humans to rate the quality of the output casing, and one might
 even want to take into account how often two humans agree about whether a word
 should or should not be capitalized. However a simpler evaluation (and one which
-does not require humans "in the loop") is to compute accuracy at the token
-level. Accuracy is simply the probability individual tokens being
-correctly-cased, and can be computed by dividing the number of correctly-cased
-tokens by the number of total tokens,
-[`round`](https://docs.python.org/3/library/functions.html#round)ed to 3-6
-decimal places.
+does not require humans "in the loop") is to compute token-level accuracy.
+Accuracy can be thoguht of as the probability that a randomly selected token
+will receive the correct casing.
 
 While it is possible to compute accuracy directly on the tags produced by
-`hunpos-tag`, this has the risk of slightly underestimating the actual accuracy.
+`crfsuite`, this has the risk of slightly underestimating the actual accuracy.
 For instance, if the system tags a punctuation character as `UPPER`, this seems
 wrong, but it is harmless; token is inherently case-less and it doesn't matter
 what kind of tag it receives. When multiple predictions all give the right
@@ -227,7 +206,18 @@ evaluation method should not penalize spurious ambiguity. In this case, one can
 avoid spurious ambiguity by evaluating not on the tags but on the tokenized
 data, after it has been converted back to that format.
 
-**TODO**: describe the structure of `evaluate.py`.
+#### What to do
+
+Write a script called `evaluate.py`. It should take two command-line arguments: the path to the original "gold" tokenized and cased data, and the path to the  predicted data from the previous step. It should first initialize two counters, one for the number of correctly cased tokens, and one for the total number of tokens. Then, iterating over the two files, count the number of correctly cased tokens, the number of overall tokens. To compute accuracy, it should divide the former by the latter, round to 3-6 digits, and print the result. Your evaluation script should **not** read both files all at once, which will not work for very large files. Rather it should process the data line by line. For instance, if the gold data file handle is `gold` and the predicted data file handle is `pred`, part of your script might resemble the following.
+
+    ```python
+    for (gold_line, pred_line) in zip(gold, pred):
+        gold_tokens = gold_line.split()
+        pred_tokens = pred_line.split()
+        assert len(gold_tokens) == len(pred_tokens)
+        for (gold_token, pred_token) in zip(gold_tokens, pred_tokens):
+            ...
+    ```
 
 ### Part 6: style transfer
 
@@ -247,37 +237,38 @@ et al. 2006.
     commands. It may be more convenient to combine the steps into two programs,
 
 -   a "trainer" which converting tokenized data to two-column format and invokes
-    `hunpos-train` on it, and
+    `crfsuite learn` on it, and
 -   a "predictor" which converts tokenized data to one-column format, invokes
-    `hunpos-tag`, and then converts it back to tokenized format. The obvious way
-    to do this is to write two Python scripts which, as part of their process,
-    call the HunPos shell commands using the built-in
+    `crfsuite tag`, and then converts it back to tokenized format.
+    
+    The obvious way to do this is to write two Python scripts which, as part of their process,
+    call  shell commands using the built-in
     [`subprocess`](https://docs.python.org/3/library/subprocess.html) module. In
     particular, use
--   [`subprocess.check_call`](https://docs.python.org/3/library/subprocess.html#subprocess.check_call),
+    [`subprocess.check_call`](https://docs.python.org/3/library/subprocess.html#subprocess.check_call),
     which executes a shell command and raises an error if it fails, or
--   [`subprocess.popen`](https://docs.python.org/3/library/subprocess.html#popen-constructor),
+    [`subprocess.popen`](https://docs.python.org/3/library/subprocess.html#popen-constructor),
     which has a similar syntax but also captures the output of the command.
     Since both these scripts must generate temporary files (i.e., the data in
     one- or two-column format) you may want to use the built-in
     [`tempfile`](https://docs.python.org/3/library/tempfile.html) module, and in
     particular
-    [`tempfile.NamedTemporaryFile`](https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile).
+    [`tempfile.NamedTemporaryFile`](https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile)
+    or [`tempfile.mkstemp`](https://docs.python.org/3/library/tempfile.html#tempfile.mkstemp).
     Since these scripts will need to take various arguments (paths to input and
     output files, as well as the model order hyperparameters), use the built-in
     [`argparse`](https://docs.python.org/3/library/argparse.html) module to
     parse command-line flags.
-
 2.  Convert your implementation to a [Python
     package](https://packaging.python.org/) which can be installed using `pip`.
     If you are also doing stretch goal \#1, you may want to make the trainer and
     the predictor separate ["console
     scripts"](https://python-packaging.readthedocs.io/en/latest/command-line-scripts.html#the-console-scripts-entry-point).
-    Make sure to fail gracefully if the user doesn't already have HunPos
+    Make sure to fail gracefully if the user doesn't already have `crfsuite`
     installed.
 3.  Train and evaluate a model on a language other than English (though make
     sure the writing system makes case distinctions---not all do); even French
-    and German both have rather different casing rules...
+    and German both have rather different casing rules.
 4.  Train, evaluate, and distribute a **gigantic** case restoration model using
     a megacorpus such as
 
@@ -285,20 +276,23 @@ et al. 2006.
 -   the [Billion Word
     Benchmark](https://github.com/ciprian-chelba/1-billion-word-language-modeling-benchmark),
     or
--   the [WMT news
-    crawl](https://gist.github.com/kylebgorman/5109b09fbfc3a2c1dbbdd405326c1130).
-
-5.  One limitation of HMMs and (and generative models in general) is that they
-    only support rather simple features based on nearby words and tags. In
-    comparison, discriminative sequence models allow users to specify arbitrary
-    emission features (though they still impose stringent restrictions on
-    transition features). The
-    [`perceptronix`](https://github.com/kylebgorman/perceptronix/) library
-    provides a fast C++-based backend for training linear sequence models with
+-   multiple years of the [WMT news
+    crawl](https://gist.github.com/kylebgorman/5109b09fbfc3a2c1dbbdd405326c1130) data.
+    
+    To prevent the number of features from swamping your training, you may wish to
+    use [`-p feature.minfreq=`](http://www.chokkan.org/software/crfsuite/manual.html#idp8853519024)
+    when training. For instance, if you call `crfsuite learn -p feature.minfreq=10 ...`,
+    then any feature occurring less than 10 times in the training data will be ignored.
+5.  Above we provided a relatively simple feature extraction function.
+    Would different features do better? Add, remove, or combine features,
+    retrain your model, and compare the results the provided feature function.
+6. Alternatively, you can try a different type of model altogether using the
+    [`perceptronix`](https://github.com/kylebgorman/perceptronix/) library,
+    which provides a fast C++-based backend for training linear sequence models with
     the perceptron learning algorithm. Install Perceptronix, then using
     `case.py` and the `perceptronix.SparseDenseMultinomialSequentialModel`
-    class, build a discriminative case restoration engine and compare it to the
-    HMM model.
+    class, build a discriminative case restoration engine and compare the results
+    to the CRF model.
 
 References
 ----------
@@ -308,18 +302,16 @@ little data can help a lot. *Computer Speech and Language* 20(4): 382-39.
 
 Church, K. W. 1995. One term or two? In *Proceedings of the 18th Annual
 International ACM SIGIR conference on Research and Development in Information
-Retrieval*, pages 310-318. Seattle.
+Retrieval*, pages 310-318.
 
-Eisenstein, J. 2019. *Introduction to natural language processing*. Cambridge:
-MIT Press.
-
-Jelinek, F. 1997. *Statistical methods for speech recognition*. Cambridge: MIT
-Press.
+Lafferty, J., McCallum, A., and Pereira, F. 2001. Conditional random fields:
+probabilistic models for segmenting and labeling sequence data. In *Proceedings
+of the 18th International Conference on Machine Learning*, pages 282-289.
 
 Lita, L. V., Ittycheriah, A., Roukos, S. and Kambhatla, N. 2003. tRuEcasIng. In
 *Prooceedings of the 41st Annual Meeting of the Association for Computational
-Linguistics*, pages 152-159. Sapporo, Japan.
+Linguistics*, pages 152-159.
 
 Wang, W., Knight, K., and Marcu, D. 206. Capitalizing machine translation. In
 *Proceedings of the Human Language Technology Conference of the NAACL, Main
-Conference*, pages 1-8, New York.
+Conference*, pages 1-8.
