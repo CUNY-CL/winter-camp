@@ -9,7 +9,7 @@ Learning goals
 --------------
 
 In this exercise, you will learn about a simple but important NLP task called
-*true-casing* or *case\_restoration*, which allows us to
+*true-casing* or *case restoration*, which allows one to
 
 -   restore missing capitalization in noisy user-generated text as is often
     found in text messages (SMS) or posts on social media, or even
@@ -31,14 +31,16 @@ and be somewhat comfortable using data structures like lists and dictionaries,
 calling functions, opening files, importing built-in modules, and reading
 technical documentation.
 
-You do not need to be familiar with the (conditional random field models)[https://en.wikipedia.org/wiki/Conditional_random_field]
-(Lafferty et al. 2001), one of the technologies we use, but it may be useful to read a bit about this technology before beginning.
+You do not need to be familiar with the (conditional random field
+models)\[https://en.wikipedia.org/wiki/Conditional_random_field\] (Lafferty et
+al. 2001), one of the technologies we use, but it may be useful to read a bit
+about this technology before beginning.
 
 The exercise is intended to take several days; at the [Graduate
 Center](https://www.gc.cuny.edu/Page-Elements/Academics-Research-Centers-Initiatives/Doctoral-Programs/Linguistics/Linguistics),
 master's students in computational linguistics often complete it as a
-supplemental exercise over winter break, after a semester of experience learning Python. (Hence
-the name "Winter Camp.")
+supplemental exercise over winter break, after a semester of experience learning
+Python. (Hence the name "Winter Camp.")
 
 ### Software requirements
 
@@ -142,45 +144,77 @@ end up with the "right" answer.
 #### What to do
 
 TODO(egarza): update Mac OS X instructions for CRFSuite.
+
 TODO(kbg): update Linux and WSL instructions for CRFSuite.
 
-1. To install HunPoS: 
-   - [ ] In your web browser, visit the [HunPos repository](https://code.google.com/archive/p/hunpos/downloads).
-   - [ ] Download the appropriate file for your platform:
-     - On Mac OS X, download `hunpos-1.0-macosx.tgz`
-     - On Windows 10, download `hunpos-1.0-win.zip`
-     - On Linux (x86), download `hunpos-1.0-linus.tgz`
-   - [ ] A file called `hunpos-1.0-macosx`, `hunpos-1.0-win.zip` or 
-`hunpos-1.0-win.zip` will appear in the directory in which you 
-downloaded the source code (e.g., `Downloads`). Decompress that directory.
-   - [ ] Enter the directory created by the previous step. 
-Within that folder you will see two files, `hunpos-tag` and `hunpos-train`.
+1.  To install HunPoS:
 
-2. Obtain some English data. Some tokenize English data from the Wall St. Journal (1989-1990) portion of the Penn Treebank is available [here](http://wellformedness.com/courses/wintercamp/data/wsj/). These files cannot be distributed beyond our "research group", so ask Kyle for the password. Alternatively, one can download a year’s worth of English data from the WMT News Crawl (2007) by executing the following from the command line.
+    -   [ ] In your web browser, visit the [HunPos
+        repository](https://code.google.com/archive/p/hunpos/downloads).
+    -   [ ] Download the appropriate file for your platform:
+        -   On Mac OS X, download `hunpos-1.0-macosx.tgz`
+        -   On Windows 10, download `hunpos-1.0-win.zip`
+        -   On Linux (x86), download `hunpos-1.0-linus.tgz`
+    -   [ ] A file called `hunpos-1.0-macosx`, `hunpos-1.0-win.zip` or
+        `hunpos-1.0-win.zip` will appear in the directory in which you
+        downloaded the source code (e.g., `Downloads`). Decompress that
+        directory.
+    -   [ ] Enter the directory created by the previous step. Within that folder
+        you will see two files, `hunpos-tag` and `hunpos-train`.
 
-    ```bash
+2.  Obtain some English data. Some tokenize English data from the Wall
+    St. Journal (1989-1990) portion of the Penn Treebank is available
+    [here](http://wellformedness.com/courses/wintercamp/data/wsj/). These files
+    cannot be distributed beyond our "research group", so ask Kyle for the
+    password. Alternatively, one can download a year's worth of English data
+    from the WMT News Crawl (2007) by executing the following from the command
+    line.
+
+    ``` {.bash}
     curl -compressed -C - http://data.statmt.org/news-crawl/en/news.2007.en.shuffled.deduped.gz -o "news.2007.gz"
     ```
-   
-Please note that you can replace the “2007” from `news.2007.gz` above to whatever year you’d like from 2007 to 2019.
-If you choose to use the News Crawl data, you will need to tokenize it and split into training, development, and testing sets.
-Therefore, write a Python script that
-  - [ ] tokenizes the data (e.g., using [`nltk.word_tokenize`](https://www.nltk.org/_modules/nltk/tokenize/punkt.html#PunktLanguageVars.word_tokenize)),
-  - [ ] randomly splits the data into training (80%), development (10%), and testing (10%), and
-  - [ ] writes the data to separate files (`train.tok`, `dev.tok`, and `test.tok`).
-  
- #### Some background on CRFSuite  
- 
-**Architecture**: True-casing is a *structured classification* problem, because the casing of one word depends on nearby words. While one could possibly choose to ignore this dependency (as would be necessary with a simple [Naïve Bayes](https://en.wikipedia.org/wiki/Naive_Bayes_classifier) or [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression) classifier), CRFSuite uses a first-order Markov model in which states represent casing tags, and the observations represent tokens. The best sequence of tags for a given sentence are computed using the [Viterbi algorithm](https://en.wikipedia.org/wiki/Viterbi_algorithm), which finds the best path by merging paths that share prefixes (e.g. the two sequences “NNN” and “NNV” share the prefix “NN”). This merging calculates the probability of that prefix only once, as you can see in the figure below.
 
-<p align="center"> <img width="460" height="300" src="https://user-images.githubusercontent.com/43279348/86036506-fcfbfa00-ba0b-11ea-819f-6a9f2bf86576.jpg"> </p>
+Please note that you can replace the "2007" from `news.2007.gz` above to
+whatever year you'd like from 2007 to 2019. If you choose to use the News Crawl
+data, you will need to tokenize it and split into training, development, and
+testing sets. Therefore, write a Python script that - \[ \] tokenizes the data
+(e.g., using
+[`nltk.word_tokenize`](https://www.nltk.org/_modules/nltk/tokenize/punkt.html#PunktLanguageVars.word_tokenize)),
+- \[ \] randomly splits the data into training (80%), development (10%), and
+testing (10%), and - \[ \] writes the data to separate files (`train.tok`,
+`dev.tok`, and `test.tok`).
 
-Saving the intermediate results of these prefix paths to speed up calculations is an example of [*dynamic programming*](https://en.wikipedia.org/wiki/Dynamic_programming), without which it would take too long to score every possible path.
- 
+\#\#\#\# Some background on CRFSuite
+
+**Architecture**: True-casing is a *structured classification* problem, because
+the casing of one word depends on nearby words. While one could possibly choose
+to ignore this dependency (as would be necessary with a simple [Naïve
+Bayes](https://en.wikipedia.org/wiki/Naive_Bayes_classifier) or [logistic
+regression](https://en.wikipedia.org/wiki/Logistic_regression) classifier),
+CRFSuite uses a first-order Markov model in which states represent casing tags,
+and the observations represent tokens. The best sequence of tags for a given
+sentence are computed using the [Viterbi
+algorithm](https://en.wikipedia.org/wiki/Viterbi_algorithm), which finds the
+best path by merging paths that share prefixes (e.g. the two sequences "NNN" and
+"NNV" share the prefix "NN"). This merging calculates the probability of that
+prefix only once, as you can see in the figure below.
+
+```{=html}
+<p align="center">
+```
+`<img width="460" height="300" src="https://user-images.githubusercontent.com/43279348/86036506-fcfbfa00-ba0b-11ea-819f-6a9f2bf86576.jpg">`{=html}
+```{=html}
+</p>
+```
+Saving the intermediate results of these prefix paths to speed up calculations
+is an example of [*dynamic
+programming*](https://en.wikipedia.org/wiki/Dynamic_programming), without which
+it would take too long to score every possible path.
+
 ### Part 3: training
 
-**TODO**: apply feature extractor to generate data and call `crfsuite learn`. Also introduce
-`case.py` and talk about how it works.
+**TODO**: apply feature extractor to generate data and call `crfsuite learn`.
+Also introduce `case.py` and talk about how it works.
 
 ### Part 4: prediction
 
@@ -188,11 +222,11 @@ Saving the intermediate results of these prefix paths to speed up calculations i
 
 ### Part 5: evaluation
 
-So, how good is your true-caser? There are many ways we can imagine measuring this.
-One could ask humans to rate the quality of the output casing, and one might
-even want to take into account how often two humans agree about whether a word
-should or should not be capitalized. However a simpler evaluation (and one which
-does not require humans "in the loop") is to compute token-level accuracy.
+So, how good is your true-caser? There are many ways we can imagine measuring
+this. One could ask humans to rate the quality of the output casing, and one
+might even want to take into account how often two humans agree about whether a
+word should or should not be capitalized. However a simpler evaluation (and one
+which does not require humans "in the loop") is to compute token-level accuracy.
 Accuracy can be thoguht of as the probability that a randomly selected token
 will receive the correct casing.
 
@@ -208,7 +242,17 @@ data, after it has been converted back to that format.
 
 #### What to do
 
-Write a script called `evaluate.py`. It should take two command-line arguments: the path to the original "gold" tokenized and cased data, and the path to the  predicted data from the previous step. It should first initialize two counters, one for the number of correctly cased tokens, and one for the total number of tokens. Then, iterating over the two files, count the number of correctly cased tokens, the number of overall tokens. To compute accuracy, it should divide the former by the latter, round to 3-6 digits, and print the result. Your evaluation script should **not** read both files all at once, which will not work for very large files. Rather it should process the data line by line. For instance, if the gold data file handle is `gold` and the predicted data file handle is `pred`, part of your script might resemble the following.
+Write a script called `evaluate.py`. It should take two command-line arguments:
+the path to the original "gold" tokenized and cased data, and the path to the
+predicted data from the previous step. It should first initialize two counters,
+one for the number of correctly cased tokens, and one for the total number of
+tokens. Then, iterating over the two files, count the number of correctly cased
+tokens, the number of overall tokens. To compute accuracy, it should divide the
+former by the latter, round to 3-6 digits, and print the result. Your evaluation
+script should **not** read both files all at once, which will not work for very
+large files. Rather it should process the data line by line. For instance, if
+the gold data file handle is `gold` and the predicted data file handle is
+`pred`, part of your script might resemble the following.
 
     ```python
     for (gold_line, pred_line) in zip(gold, pred):
@@ -238,11 +282,12 @@ et al. 2006.
 
 -   a "trainer" which converting tokenized data to two-column format and invokes
     `crfsuite learn` on it, and
+
 -   a "predictor" which converts tokenized data to one-column format, invokes
     `crfsuite tag`, and then converts it back to tokenized format.
-    
-    The obvious way to do this is to write two Python scripts which, as part of their process,
-    call  shell commands using the built-in
+
+    The obvious way to do this is to write two Python scripts which, as part of
+    their process, call shell commands using the built-in
     [`subprocess`](https://docs.python.org/3/library/subprocess.html) module. In
     particular, use
     [`subprocess.check_call`](https://docs.python.org/3/library/subprocess.html#subprocess.check_call),
@@ -254,18 +299,23 @@ et al. 2006.
     [`tempfile`](https://docs.python.org/3/library/tempfile.html) module, and in
     particular
     [`tempfile.NamedTemporaryFile`](https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile)
-    or [`tempfile.mkstemp`](https://docs.python.org/3/library/tempfile.html#tempfile.mkstemp).
+    or
+    [`tempfile.mkstemp`](https://docs.python.org/3/library/tempfile.html#tempfile.mkstemp).
     Since these scripts will need to take various arguments (paths to input and
     output files, as well as the model order hyperparameters), use the built-in
     [`argparse`](https://docs.python.org/3/library/argparse.html) module to
     parse command-line flags.
+
 2.  Convert your implementation to a [Python
     package](https://packaging.python.org/) which can be installed using `pip`.
     If you are also doing stretch goal \#1, you may want to make the trainer and
     the predictor separate ["console
     scripts"](https://python-packaging.readthedocs.io/en/latest/command-line-scripts.html#the-console-scripts-entry-point).
     Make sure to fail gracefully if the user doesn't already have `crfsuite`
-    installed.
+    installed. Alternatively, you can build your package around the
+    [`python-crfsuite`](https://github.com/scrapinghub/python-crfsuite) package,
+    available from `pip`, which exposes the CRFSuite internals directly to
+    Python, without the need to call the `crfsuite` binary.
 3.  Train and evaluate a model on a language other than English (though make
     sure the writing system makes case distinctions---not all do); even French
     and German both have rather different casing rules.
@@ -273,26 +323,32 @@ et al. 2006.
     a megacorpus such as
 
 -   [Gigaword](https://catalog.ldc.upenn.edu/LDC2011T07),
+
 -   the [Billion Word
     Benchmark](https://github.com/ciprian-chelba/1-billion-word-language-modeling-benchmark),
     or
+
 -   multiple years of the [WMT news
-    crawl](https://gist.github.com/kylebgorman/5109b09fbfc3a2c1dbbdd405326c1130) data.
-    
-    To prevent the number of features from swamping your training, you may wish to
-    use [`-p feature.minfreq=`](http://www.chokkan.org/software/crfsuite/manual.html#idp8853519024)
-    when training. For instance, if you call `crfsuite learn -p feature.minfreq=10 ...`,
-    then any feature occurring less than 10 times in the training data will be ignored.
-5.  Above we provided a relatively simple feature extraction function.
-    Would different features do better? Add, remove, or combine features,
-    retrain your model, and compare the results the provided feature function.
-6. Alternatively, you can try a different type of model altogether using the
+    crawl](https://gist.github.com/kylebgorman/5109b09fbfc3a2c1dbbdd405326c1130)
+    data.
+
+    To prevent the number of features from swamping your training, you may wish
+    to use
+    [`-p feature.minfreq=`](http://www.chokkan.org/software/crfsuite/manual.html#idp8853519024)
+    when training. For instance, if you call
+    `crfsuite learn -p feature.minfreq=10 ...`, then any feature occurring less
+    than 10 times in the training data will be ignored.
+
+5.  Above we provided a relatively simple feature extraction function. Would
+    different features do better? Add, remove, or combine features, retrain your
+    model, and compare the results the provided feature function.
+6.  Alternatively, you can try a different type of model altogether using the
     [`perceptronix`](https://github.com/kylebgorman/perceptronix/) library,
-    which provides a fast C++-based backend for training linear sequence models with
-    the perceptron learning algorithm. Install Perceptronix, then using
+    which provides a fast C++-based backend for training linear sequence models
+    with the perceptron learning algorithm. Install Perceptronix, then using
     `case.py` and the `perceptronix.SparseDenseMultinomialSequentialModel`
-    class, build a discriminative case restoration engine and compare the results
-    to the CRF model.
+    class, build a discriminative case restoration engine and compare the
+    results to the CRF model.
 
 References
 ----------
