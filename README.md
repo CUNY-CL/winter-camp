@@ -143,27 +143,8 @@ end up with the "right" answer.
 
 #### What to do
 
-TODO(egarza): update Mac OS X instructions for CRFSuite.
-
-TODO(kbg): update Linux and WSL instructions for CRFSuite.
-
-1.  To install HunPoS:
-
-    -   [ ] In your web browser, visit the [HunPos
-        repository](https://code.google.com/archive/p/hunpos/downloads).
-    -   [ ] Download the appropriate file for your platform:
-        -   On Mac OS X, download `hunpos-1.0-macosx.tgz`
-        -   On Windows 10, download `hunpos-1.0-win.zip`
-        -   On Linux (x86), download `hunpos-1.0-linus.tgz`
-    -   [ ] A file called `hunpos-1.0-macosx`, `hunpos-1.0-win.zip` or
-        `hunpos-1.0-win.zip` will appear in the directory in which you
-        downloaded the source code (e.g., `Downloads`). Decompress that
-        directory.
-    -   [ ] Enter the directory created by the previous step. Within that folder
-        you will see two files, `hunpos-tag` and `hunpos-train`.
-
-2.  Obtain some English data. Some tokenize English data from the Wall
-    St. Journal (1989-1990) portion of the Penn Treebank is available
+1.  Obtain English data. Some tokenized English data from the Wall St. Journal
+    (1989-1990) portion of the Penn Treebank is available
     [here](http://wellformedness.com/courses/wintercamp/data/wsj/). These files
     cannot be distributed beyond our "research group", so ask Kyle for the
     password. Alternatively, one can download a year's worth of English data
@@ -174,17 +155,49 @@ TODO(kbg): update Linux and WSL instructions for CRFSuite.
     curl -compressed -C - http://data.statmt.org/news-crawl/en/news.2007.en.shuffled.deduped.gz -o "news.2007.gz"
     ```
 
-Please note that you can replace the "2007" from `news.2007.gz` above to
-whatever year you'd like from 2007 to 2019. If you choose to use the News Crawl
-data, you will need to tokenize it and split into training, development, and
-testing sets. Therefore, write a Python script that - \[ \] tokenizes the data
+(Note that you can replace the "2007" above with any year from 2007 to 2019.) If
+you use the News Crawl data, you will need to tokenize it and split into
+training, development, and testing sets to match the format of the Wall
+St. Journal data. Therefore, write a Python script that tokenizes the data
 (e.g., using
 [`nltk.word_tokenize`](https://www.nltk.org/_modules/nltk/tokenize/punkt.html#PunktLanguageVars.word_tokenize)),
-- \[ \] randomly splits the data into training (80%), development (10%), and
-testing (10%), and - \[ \] writes the data to separate files (`train.tok`,
-`dev.tok`, and `test.tok`).
+randomly splits the data into training (80%), development (10%), and testing
+(10%), and writes the data to separate files (`train.tok`, `dev.tok`, and
+`test.tok`).
 
-\#\#\#\# Some background on CRFSuite
+2.  Install the [CRFSuite](http://www.chokkan.org/software/crfsuite/) tagger.
+
+-   On Mac OS X, the easiest way to install CRFSuite is via
+    [Homebrew](https://brew.sh/).
+
+    -   Install Homebrew, if you have not already, by executing the following
+        command in Terminal.app, and following the on-screen instructions.
+
+    ``` {.bash}
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+    ```
+
+    -   Then, to install CRFSuite, execute the following commands.
+
+    ``` {.bash}
+    brew tap brewsci/science
+    brew install crfsuite
+    ```
+
+-   On Linux and the Windows Subsystem for Linux, download and install the
+    program by executing the following commands in your system's terminal
+    application.
+
+    ``` {.bash}
+    curl -O https://github.com/downloads/chokkan/crfsuite/crfsuite-0.12.tar.gz
+    tar -xvzf crfsuite-0.12.tar.gz
+    sudo mv crfsuite-0.12/bin/crfsuite /usr/local/bin
+    ```
+
+    These three commands download, decompress, and install the program into your
+    path. Note that the last step may prompt you for your user password.
+
+#### Some background on CRFSuite
 
 **Architecture**: True-casing is a *structured classification* problem, because
 the casing of one word depends on nearby words. While one could possibly choose
@@ -199,13 +212,8 @@ best path by merging paths that share prefixes (e.g. the two sequences "NNN" an
 "NNV" share the prefix "NN"). This merging calculates the probability of that
 prefix only once, as you can see in the figure below.
 
-```{=html}
-<p align="center">
-```
-`<img width="460" height="300" src="https://user-images.githubusercontent.com/43279348/86036506-fcfbfa00-ba0b-11ea-819f-6a9f2bf86576.jpg">`{=html}
-```{=html}
-</p>
-```
+<img width="460" height="300" src="https://user-images.githubusercontent.com/43279348/86036506-fcfbfa00-ba0b-11ea-819f-6a9f2bf86576.jpg">
+
 Saving the intermediate results of these prefix paths to speed up calculations
 is an example of [*dynamic
 programming*](https://en.wikipedia.org/wiki/Dynamic_programming), without which
