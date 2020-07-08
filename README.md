@@ -212,7 +212,7 @@ best path by merging paths that share prefixes (e.g. the two sequences "NNN" an
 "NNV" share the prefix "NN"). This merging calculates the probability of that
 prefix only once, as you can see in the figure below.
 
-<img width="460" height="300" src="https://user-images.githubusercontent.com/43279348/86036506-fcfbfa00-ba0b-11ea-819f-6a9f2bf86576.jpg">
+<p align="center"><img width="460" height="300" src="https://user-images.githubusercontent.com/43279348/86036506-fcfbfa00-ba0b-11ea-819f-6a9f2bf86576.jpg"></p>
 
 Saving the intermediate results of these prefix paths to speed up calculations
 is an example of [*dynamic
@@ -262,14 +262,14 @@ large files. Rather it should process the data line by line. For instance, if
 the gold data file handle is `gold` and the predicted data file handle is
 `pred`, part of your script might resemble the following.
 
-    ```python
-    for (gold_line, pred_line) in zip(gold, pred):
-        gold_tokens = gold_line.split()
-        pred_tokens = pred_line.split()
-        assert len(gold_tokens) == len(pred_tokens)
-        for (gold_token, pred_token) in zip(gold_tokens, pred_tokens):
-            ...
-    ```
+```python
+for (gold_line, pred_line) in zip(gold, pred):
+    gold_tokens = gold_line.split()
+    pred_tokens = pred_line.split()
+    assert len(gold_tokens) == len(pred_tokens)
+    for (gold_token, pred_token) in zip(gold_tokens, pred_tokens):
+        ...
+```
 
 ### Part 6: style transfer
 
