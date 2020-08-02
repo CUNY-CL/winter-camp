@@ -152,7 +152,7 @@ end up with the "right" answer.
     line.
 
     ``` {.bash}
-    curl -compressed -C - http://data.statmt.org/news-crawl/en/news.2007.en.shuffled.deduped.gz -o "news.2007.gz"
+    curl -C - http://data.statmt.org/news-crawl/en/news.2007.en.shuffled.deduped.gz -o "news.2007.gz" && gunzip "news.2007.gz"
     ```
 
 (Note that you can replace the "2007" above with any year from 2007 to 2019.) If
