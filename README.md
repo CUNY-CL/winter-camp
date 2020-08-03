@@ -222,12 +222,23 @@ it would take too long to score every possible path.
 ### Part 3: training
 
 #### Deconstructing case.py
-- def get_tc(nunistr: str) -> Tuple[TokenCase, Pattern]:
-1. What is the argument of get_ct? What type is it? What does it return? What type is it?
-2. Take the following strings and pass them as arguments through this function: 'Mary','milk','LOL', and 'LaTeX'.
-3. What are the types of the first and second objects in the returned tuples?
-4. Which of the strings above returns a list as the second object in the tuple? What do the elements in that list tell us about the string?
-5. There is a way to get this function to only return a tag, or 'TokenCase', of a string type, instead of a tuple. See if you can figure out how to print only the tag of 'Mary' by reading the python documentation for `enum`.) Your expected output should be 'TITLE'.
+- `def get_tc(nunistr: str) -> Tuple[TokenCase, Pattern]`:
+    1. What is the argument of get_ct? What type is it? What does it return? What type is it?
+    2. Take the following strings and pass them as arguments through this function: 'Mary','milk','LOL', and 'LaTeX'.
+    3. What are the types of the first and second objects in the returned tuples?
+    4. Which of the strings above returns a list as the second object in the tuple? What do the elements in that list tell us about the string?
+    5. There is a way to get this function to only return a tag, or 'TokenCase', of a string type, instead of a tuple. See if you can figure out how to print only the tag of 'Mary' by reading the python documentation for `enum`.) Your expected output should be 'TITLE'.
+- `class TokenCase(enum.IntEnum)`:
+    1. If you haven't figured out the answer to question 5 yet, remind yourself of the type of get_tc's first tuple object by running, say, type(get_tc("Mary")     [0]). How is this object related to the snippet of code below?
+    2. Returning to get_tc for a moment... In your own words, describe what this if-statement is requesting:
+    
+        ```
+            if nunistr.islower():
+                return (TokenCase.LOWER, None)
+                
+       ```
+               
+    3. Revisit the enum documentation. What is the purpose of the line `@enum.unique`?
 
 
 **TODO**: apply feature extractor to generate data and call `crfsuite learn`.
