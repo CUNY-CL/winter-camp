@@ -222,6 +222,7 @@ it would take too long to score every possible path.
 ### Part 3: training
 
 #### Deconstructing case.py
+
 - `def get_tc(nunistr: str) -> Tuple[TokenCase, Pattern]`:
 
     1. What is the argument of get_ct? What type is it? What does it return? What type is it?
@@ -250,6 +251,13 @@ it would take too long to score every possible path.
     3. Print only the string version of the CharCase tag of get_tc('L'). Your expected output should be 'UPPER'.
     4. Which kinds of strings return the object <CharCase.DC>? (See line 21 in case.py to see what 'DC' stands for.)
     5. Read the python documentation for 'unicodedata', one of the imported libraries for this script. And more generally, read about 'unicode' characters here: https://docs.python.org/3/howto/unicode.html. Why does the argument have to be a "Unicode character"?
+    
+- `def apply_cc(nunichar: str) -> CharCase`:
+
+    1. What is the argument of apply_cc? What type is it? What does it return? What type is it?
+    2. Apply CharCase.UPPER to the following strings: 'L', 'a'. Your expected output should be: 'L', 'A'. (HINT: Your second argument is an object returned by get_tc.)
+    3. Repeat 12 with CharCase.LOWER. Your expected output should be 'l', 'a'.
+    4. Write a snippet of code that iterates through the characters in 'latex' and applies the CharCases needed to get the output, 'LaTeX'. (TIP: You can use the zip() function to write a for-loop that iterates through two lists at the same time.)
 
 
 **TODO**: apply feature extractor to generate data and call `crfsuite learn`.
