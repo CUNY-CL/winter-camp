@@ -289,6 +289,10 @@ If you'd like to go through the exercises below in a jupyter notebook or code ed
     2. Apply TokenCase.LOWER to the following strings, 'Mr.', 'apple' 'LaTeX'. Your expected output should be 'mr.', 'apple', 'latex'. (HINT: You will need to use get_tc to create the second argument of this function.)
     3. Do the same for TokenCase.UPPER. Your expected output should be 'MR.', 'APPLE', 'LATEX'.
     4. Do the same for TokenCase.TITLE. Your expected output should be 'Mr.', 'Apple', 'Latex'.
+    
+#### features.py 
+
+[features.py](https://github.com/CUNY-CL/WinterCamp/blob/TODOs/src/features.py)
 
 
 **TODO**: apply feature extractor to generate data and call `crfsuite learn`.
