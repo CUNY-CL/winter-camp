@@ -223,10 +223,33 @@ it would take too long to score every possible path.
 
 #### Deconstructing case.py
 
+One aspect of the training phrase of this experiment involves tagging the casefolded tokens in `train.tok` by their case.  For example, the following sequence of tokens, 'He ate a prune wafer.', would be tagged like so: 
+
+``` He  TokenCase.TITLE    
+    ate TokenCase.LOWER 
+    a   TokenCase.LOWER 
+    prune   Tokencase.LOWER 
+    wafer   TokenCase.LOWER
+    .   TokenCase.DC (I.e. `Don't care` because it's a punctuation mark.)
+```
+
+Mixed-cased tokens, like 'LaTeX', need to be tagged according to each character's casing like so: 
+
+``` L CharCase.UPPER
+    a   CharCase.LOWER
+    T   CharCase.UPPER  
+    e   CharCase.LOWER
+    X   CharCase.UPPER
+```
+
+To tag and tokens and characters in this manner, you will be calling many of the functions in `case.py`.  As such, the purpose of this section is to give you some exercises to help you learn how the different functions and classes in `case.py` work together to tag tokens and characters by their case, starting from the function `get_tc`. 
+
+If you'd like to go through the exercises below in a jupyter notebook or code editor, make sure that `case.py` is in the same directory as your file, and then `import case`.  
+
 - `def get_tc(nunistr: str) -> Tuple[TokenCase, Pattern]:`
 
     1. What is the argument of get_ct? What type is it? What does it return? What type is it?
-    2. Take the following strings and pass them as arguments through this function: 'Mary','milk','LOL', and 'LaTeX'.
+    2. Take the following strings and pass them as arguments through this function: 'Mary', 'milk', 'LOL', and 'LaTeX'.
     3. What are the types of the first and second objects in the returned tuples?
     4. Which of the strings above returns a list as the second object in the tuple? What do the elements in that list tell us about the string?
     5. There is a way to get this function to only return a tag, or 'TokenCase', of a string type, instead of a tuple. See if you can figure out how to print only the tag of 'Mary' by reading the python documentation for `enum`.) Your expected output should be 'TITLE'.
