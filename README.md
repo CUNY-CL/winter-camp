@@ -223,7 +223,7 @@ it would take too long to score every possible path.
 
 #### Deconstructing case.py
 
-One aspect of the training phrase of this experiment involves tagging the casefolded tokens in `train.tok` by their case.  For example, the following sequence of tokens, 'He ate a prune wafer.', would be tagged like so: 
+One aspect of the training phrase involves tagging the casefolded tokens in `train.tok` by their case.  For example, the following sequence of tokens, 'He ate a prune wafer.', would be tagged like so: 
 
 ``` 
     He  TokenCase.TITLE    
@@ -290,10 +290,34 @@ If you'd like to go through the exercises below in a jupyter notebook or code ed
     3. Do the same for TokenCase.UPPER. Your expected output should be 'MR.', 'APPLE', 'LATEX'.
     4. Do the same for TokenCase.TITLE. Your expected output should be 'Mr.', 'Apple', 'Latex'.
     
-#### features.py 
+#### Extracting token features to train the model.
 
-[features.py](https://github.com/CUNY-CL/WinterCamp/blob/TODOs/src/features.py)
+During the training phase, the model must be given a set of labelled token features which will be used to calculate the probabilities of all TokenCases in 'train.tok'.  Token features can include word context features including tokens that appear to the left and right of the token of interest, in addition to suffix features.  For example, the labelled token features for the sentence, 'Nelson Holdings International Ltd. dropped the most on a percentage basis , to 1,000 shares from 255,923 .', will look like the following-- 
 
+```
+TITLE   t[0]=nelson     __BOS__ suf1=n  suf2=on suf3=son
+TITLE   t[0]=holdings   t[-1]=nelson    t[+1]=international     t[-1]=nelson^t[+1]=international        suf1=s  suf2=gs            suf3=ngs
+TITLE   t[0]=international      t[-1]=holdings  t[+1]=ltd.      t[-1]=holdings^t[+1]=ltd.       t[-2]=nelson    t[+2]=dropped      suf1=l   suf2=al suf3=nal
+TITLE   t[0]=ltd.       t[-1]=international     t[+1]=dropped   t[-1]=international^t[+1]=dropped       t[-2]=holdings t[+2]=the   suf1=.   suf2=d. suf3=td.
+LOWER   t[0]=dropped    t[-1]=ltd.      t[+1]=the       t[-1]=ltd.^t[+1]=the    t[-2]=international     t[+2]=most     suf1=d      suf2=ed  suf3=ped
+LOWER   t[0]=the        t[-1]=dropped   t[+1]=most      t[-1]=dropped^t[+1]=most        t[-2]=ltd.      t[+2]=on       suf1=e      suf2=he
+LOWER   t[0]=most       t[-1]=the       t[+1]=on        t[-1]=the^t[+1]=on      t[-2]=dropped   t[+2]=a suf1=t  suf2=st            suf3=ost
+LOWER   t[0]=on t[-1]=most      t[+1]=a t[-1]=most^t[+1]=a      t[-2]=the       t[+2]=percentage        suf1=n
+LOWER   t[0]=a  t[-1]=on        t[+1]=percentage        t[-1]=on^t[+1]=percentage       t[-2]=most      t[+2]=basis
+LOWER   t[0]=percentage t[-1]=a t[+1]=basis     t[-1]=a^t[+1]=basis     t[-2]=on        t[+2]=, suf1=e  suf2=ge suf3=age
+LOWER   t[0]=basis      t[-1]=percentage        t[+1]=, t[-1]=percentage^t[+1]=,        t[-2]=a t[+2]=to        suf1=s suf2=is     suf3=sis
+DC      t[0]=,  t[-1]=basis     t[+1]=to        t[-1]=basis^t[+1]=to    t[-2]=percentage        t[+2]=1,000
+LOWER   t[0]=to t[-1]=, t[+1]=1,000     t[-1]=,^t[+1]=1,000     t[-2]=basis     t[+2]=shares    suf1=o
+DC      t[0]=1,000      t[-1]=to        t[+1]=shares    t[-1]=to^t[+1]=shares   t[-2]=, t[+2]=from      suf1=0  suf2=00            suf3=000
+LOWER   t[0]=shares     t[-1]=1,000     t[+1]=from      t[-1]=1,000^t[+1]=from  t[-2]=to        t[+2]=255,923   suf1=s suf2=es     suf3=res
+LOWER   t[0]=from       t[-1]=shares    t[+1]=255,923   t[-1]=shares^t[+1]=255,923      t[-2]=1,000     t[+2]=. suf1=m suf2=om     suf3=rom
+DC      t[0]=255,923    t[-1]=from      t[+1]=. t[-1]=from^t[+1]=.      suf1=3  suf2=23 suf3=923
+DC      t[0]=.  __EOS__
+```
+
+--where the TokenCase labels are included the first column, and the token features are included in the rest of the columns.  Later on, in **Part 4** of this experiment, the model will refer to these calculated probabilities to predict the TokenCases of all unseen tokens in 'test.tok'.  
+
+Taking all of this into consideration, you need to write a script, `features.py`, that extracts the features of every token in `train.tok` with a newline between each sentence.  If you'd like, you can refer to a template, [features.py](https://github.com/CUNY-CL/WinterCamp/blob/TODOs/src/features.py), to guide your thinking given that this is a challenging script to write.
 
 **TODO**: apply feature extractor to generate data and call `crfsuite learn`.
 Also introduce `case.py` and talk about how it works.
