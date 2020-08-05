@@ -221,7 +221,7 @@ it would take too long to score every possible path.
 
 ### Part 3: training
 
-#### Deconstructing case.py
+#### Deconstructing case.py.
 
 One aspect of the training phrase involves tagging the casefolded tokens in `train.tok` by their case.  For example, the following sequence of tokens, 'He ate a prune wafer.', would be tagged like so: 
 
@@ -317,9 +317,26 @@ DC      t[0]=.  __EOS__
 
 --where the TokenCase labels are included the first column, and the token features are included in the rest of the columns.  Later on, in **Part 4** of this experiment, the model will refer to these calculated probabilities to predict the TokenCases of all unseen tokens in 'test.tok'.  
 
-Taking all of this into consideration, you need to write a script, `features.py`, that extracts the features of every token in `train.tok` with a newline between each sentence.  If you'd like, you can refer to a template, [features.py](https://github.com/CUNY-CL/WinterCamp/blob/TODOs/src/features.py), to guide your thinking given that this is a challenging script to write.
+Taking all of this into consideration, you need to write a script, `features.py`, that extracts the features of every token in `train.tok` with a newline between each sentence.  If you'd like, you can refer to a template, [features.py](https://github.com/CUNY-CL/WinterCamp/blob/TODOs/src/features.py), to guide your thinking given that this is a challenging script to write.  
 
-**TODO**: apply feature extractor to generate data and call `crfsuite learn`.
+#### Populating a mixed-cased dictionary.
+
+Tokens with 'TITLE', 'LOWER' and 'UPPER' tags all have the same CharCase pattern (i.e. first character is capitolized; no chars are capitolized; all chars are capitolized, respectively).  In contrast, tokens with 'MIXED' tags, like 'McDonald's' and 'LaTeX', all have different CharCase patterns. So if our model assigns a tag of 'MIXED' to a casefolded token like, 'n.y.-based', it won't restore case to the token because a single, predictable CharCase pattern doesn't exist for all mixed case tokens.  It is for this reason that we need to populate a mixed-case dictionary with 'MIXED' case tokens during the training phase.  
+
+--provide a visual of what it looks like
+--talk about why the dictionary within a dictionary format is needed (that there will be different CharCase patterns for the same token because of typos, and that you need to extract the more popular CharCase pattern; for this reason, you need to collect the counts and then get the max count).
+--give an outline of what the snippet of code should do
+--talk about the collections.defaultDict library 
+
+To do this, you will need to write a snippet that does all of the following:
+1. 
+
+
+
+
+
+
+**TODO** apply feature extractor to generate data and call `crfsuite learn`.
 Also introduce `case.py` and talk about how it works.
 
 ### Part 4: prediction
