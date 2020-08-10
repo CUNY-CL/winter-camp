@@ -317,19 +317,43 @@ DC      t[0]=.  __EOS__
 
 --where the TokenCase labels are included the first column, and the token features are included in the rest of the columns.  Later on, in **Part 4** of this experiment, the model will refer to these calculated probabilities to predict the TokenCases of all unseen tokens in 'test.tok'.  
 
-Taking all of this into consideration, you need to write a script, `features.py`, that extracts the features of every token in `train.tok` with a newline between each sentence.  If you'd like, you can refer to a template, [features.py](https://github.com/CUNY-CL/WinterCamp/blob/TODOs/src/features.py), to guide your thinking given that this is a challenging script to write.  
+Taking all of this into consideration, you need to write a script, `features.py`, that extracts the features of every token in `train.tok` with a newline between each sentence, and without the first column of tags shown above (They have been included in the excerpt above for pedagogical purposes).   If you'd like, you can refer to a template, [features.py](https://github.com/CUNY-CL/WinterCamp/blob/TODOs/src/features.py), to guide your thinking given that this is a challenging script to write.   
 
 #### Populating a mixed-cased dictionary.
 
-Tokens with 'TITLE', 'LOWER' and 'UPPER' tags all have the same CharCase pattern (i.e. first character is capitolized; no chars are capitolized; all chars are capitolized, respectively).  In contrast, tokens with 'MIXED' tags, like 'McDonald's' and 'LaTeX', all have different CharCase patterns. So if our model assigns a tag of 'MIXED' to a casefolded token like, 'n.y.-based', it won't restore case to the token because a single, predictable CharCase pattern doesn't exist for all mixed case tokens.  It is for this reason that we need to populate a mixed-case dictionary with 'MIXED' case tokens during the training phase.  
+Tokens with TITLE, LOWER and UPPER tags all have the same CharCase pattern (i.e. first character is capitolized; no chars are capitolized; all chars are capitolized, respectively).  In contrast, tokens with MIXED tags, like *McDonald's* and *LaTeX*, all have different CharCase patterns. So if our model assigns a tag of MIXED to a casefolded token like, *n.y.-based*, it won't restore case to the token because a single, predictable CharCase pattern doesn't exist for all mixed case tokens.  It is for this reason that we need to populate a mixed-case dictionary with MIXED case tokens during the training phase.  
 
---provide a visual of what it looks like
---talk about why the dictionary within a dictionary format is needed (that there will be different CharCase patterns for the same token because of typos, and that you need to extract the more popular CharCase pattern; for this reason, you need to collect the counts and then get the max count).
---give an outline of what the snippet of code should do
---talk about the collections.defaultDict library 
+The keys for such a dictionary should be casefolded tokens, and the values should be `collections.Counter` dictionaries. For example, for the casefolded token, *iphone*, the entry will look something like:  
 
-To do this, you will need to write a snippet that does all of the following:
-1. 
+    { 'iphone' : Counter{ 'iPhone' : 11, 'IPhone' : 5, 'iphone' : 3 } }
+
+The reason we need `collections.Counter` dictionaries to fill the value entries is because the data is bound to have multiple CharCase patterns for a single MIXED token, and the dictionaries will provide the counts for each CharCase pattern, as you can see above.  That way, when the time comes to perform case-restoration on casefolded MIXED tokens, we will have the means to select the CharCase pattern with the highest count.  In sum, if the `test.tok` data set were to contain the token, *iphone*, because the model isn't designed to restore case to MIXED case tokens, we would have to perform a dictionary lookup and select the CharCase pattern with the highest count--i.e. *iPhone*. 
+
+To write a snippet that populates a mixed-case dictionary, you will have to read the [documentation](https://docs.python.org/2/library/collections.html) on `collections.defaultdict` to learn how to create default dictionaries and `import collections`. 
+
+TIPS: 
+
+1.  You will need to create an empty dictionary before you start your for-loop that should look something like this: 
+
+        mc_dict = collections.defaultdict(collections.Counter)
+        for tok in tok_sent: 
+            pass
+    
+2.  The line that you will need to create a dictionary entry like the one above can look something like:
+
+        mc_dict[tok.casefold()][tok] += 1
+    
+3.  It's actually easier to fill the value entry of your mixed-case dictionary with only the CharCase pattern with the highest count, instead of the entire Counter dictionary object.  If you plan on doing this, you will need to create another dictionary, where the keys are the casefolded_tokens, and the values are the CharCase patterns with the highest count, so you get something that looks like this: 
+
+        { 'iphone' : 'iPhone', 'mcdonald's' : 'McDonald's' ... } 
+    
+4.  Because there are so many mixed-case tokens in data sets that are just typos, like 'ELizabeth', you should write an if-statement that skips over CharCase pattern counts that are < 2. 
+
+
+
+
+
+    
 
 
 
