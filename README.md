@@ -292,7 +292,7 @@ If you'd like to go through the exercises below in a jupyter notebook or code ed
     
 #### Extracting token features to train the model.
 
-During the training phase, the model must be given a set of labelled token features which will be used to calculate the probabilities of all TokenCases in 'train.tok'.  Token features can include word context features including tokens that appear to the left and right of the token of interest, in addition to suffix features.  For example, the labelled token features for the sentence, 'Nelson Holdings International Ltd. dropped the most on a percentage basis , to 1,000 shares from 255,923 .', will look like the following-- 
+During the training phase, the model must be given a set of labelled token features which will be used to calculate the probabilities of all TokenCases in 'train.tok'.  Token features can include word context features including tokens that appear to the left and right of the token of interest, in addition to suffix features.  For example, the labelled token features for the sentence, 'Nelson Holdings International Ltd. dropped the most on a percentage basis , to 1,000 shares from 255,923 .', will look like the following in **Figure 2**-- 
 
 ```
 TITLE   t[0]=nelson     __BOS__ suf1=n  suf2=on suf3=son
@@ -329,7 +329,7 @@ The keys for such a dictionary should be casefolded tokens, and the values shoul
 
 The reason we need `collections.Counter` dictionaries to fill the value entries is because the data is bound to have multiple CharCase patterns for a single MIXED token, and the dictionaries will provide the counts for each CharCase pattern, as you can see above.  That way, when the time comes to perform case-restoration on casefolded MIXED tokens, we will have the means to select the CharCase pattern with the highest count.  In sum, if the `test.tok` data set were to contain the token, *iphone*, because the model isn't designed to restore case to MIXED case tokens, we would have to perform a dictionary lookup and select the CharCase pattern with the highest count--i.e. *iPhone*. 
 
-To write a snippet that populates a mixed-case dictionary, you will have to read the [documentation](https://docs.python.org/2/library/collections.html) on `collections.defaultdict` to learn how to create default dictionaries and `import collections`. 
+To write a snippet that populates a mixed-case dictionary, you will have to read the [documentation](https://docs.python.org/2/library/collections.html) on `collections.defaultdict` and carefully go through the examples provided to learn how to create default dictionaries.
 
 TIPS: 
 
@@ -349,19 +349,56 @@ TIPS:
     
 4.  Because there are so many mixed-case tokens in data sets that are just typos, like 'ELizabeth', you should write an if-statement that skips over CharCase pattern counts that are < 2. 
 
+#### Preparing the data for training the case tagger
 
+Before you train the `crfsuite` model, you need to extract features from `train.tok` and `dev.tok`, print those features to two different files and populate a and print a mixed-case dictionary to a `json` file.  
 
+To do this, you can write a script, `prep-trainig-data.py`, that imports `collections`, `json`, `case`, and `features`
+and contains two functions:  
+1. `def _extract_train(source_path: str, sink_path: str, mcdict_path: str) -> None:`
+2. `def _extract_dev(source_path: str, sink_path: str) -> None:`
 
+The first function should do all of the following: 
+1. extract features from `train.tok` using `features.py` and add a column of tags, as shown in **Figure 2** above.
+2. print the extracted features from 1. to a plain text file called, say, `train_feats`
+3. populate a mixed case dictionary, `mc_dict`
+4. print the dictionary object from 3. to a `json` file.  
 
-    
+The second should: 
+1.  extract features from `dev.tok` using `features.py` and a column of tags
+2.  print the extracted features from 1. to a plain text file called, say, `dev_feats`
 
+#### Training the model 
 
+After you have created `train_feats`, `dev_feats`, and `mc_dict`, (the latter of which will not be used until the prediction phase of the experiment), you can open a terminal, move into the appropriate directory and run the following-- 
 
+        % crfsuite learn -p  feature.possible_states=1 -p feature.possible_transitions=1 -m your_model_path -e2 train_sink_path dev_sink_path 
+        
+--where 'your_model_path' is the name you choose to give your model, 'train_sink_path' is `train_feats` and 'dev_sink_path' is `dev_feats`.  After running the command, you should see information like this in your terminal:  
 
+        CRFSuite 0.12  Copyright (c) 2007-2011 Naoaki Okazaki
+        Start time of the training: 2020-08-10T01:34:06Z
 
+        Reading the data set(s)
+        [1] train_feats.txt
+        0....1....2....3....4....5....6....7....8....9....10
+        Number of instances: 10001
+        Seconds required: 3.795
+        [2] dev_feats.txt
+        0....1....2....3....4....5....6....7....8....9....10
+        Number of instances: 1001
+        Seconds required: 0.255
 
-**TODO** apply feature extractor to generate data and call `crfsuite learn`.
-Also introduce `case.py` and talk about how it works.
+        Statistics the data set(s)
+        Number of data sets (groups): 2
+        Number of instances: 11000
+        Number of items: 256678
+        Number of attributes: 236290
+        Number of labels: 5
+
+        Holdout group: 2
+        
+The total training time of a `train_feats` document of 20MB should take approximately 1-3 minutes.  At the ending of training, you should see a file in your directory with the name you gave to your_model_path that is not human readable.  
 
 ### Part 4: prediction
 
