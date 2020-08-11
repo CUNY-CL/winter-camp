@@ -212,8 +212,13 @@ best path by merging paths that share prefixes (e.g. the two sequences "NNN" an
 "NNV" share the prefix "NN"). This merging calculates the probability of that
 prefix only once, as you can see in the figure below.
 
-<p align="center"><img width="460" height="300" src="https://user-images.githubusercontent.com/43279348/86036506-fcfbfa00-ba0b-11ea-819f-6a9f2bf86576.jpg"></p>
-
+```{=html}
+<p align="center">
+```
+`<img width="460" height="300" src="https://user-images.githubusercontent.com/43279348/86036506-fcfbfa00-ba0b-11ea-819f-6a9f2bf86576.jpg">`{=html}
+```{=html}
+</p>
+```
 Saving the intermediate results of these prefix paths to speed up calculations
 is an example of [*dynamic
 programming*](https://en.wikipedia.org/wiki/Dynamic_programming), without which
@@ -262,7 +267,7 @@ large files. Rather it should process the data line by line. For instance, if
 the gold data file handle is `gold` and the predicted data file handle is
 `pred`, part of your script might resemble the following.
 
-```python
+``` {.python}
 for (gold_line, pred_line) in zip(gold, pred):
     gold_tokens = gold_line.split()
     pred_tokens = pred_line.split()
@@ -273,7 +278,32 @@ for (gold_line, pred_line) in zip(gold, pred):
 
 ### Part 6: style transfer
 
-**TODO**: apply to some data from social media.
+*Style transfer* refers to the use of machine learning to apply the "style" of a
+*reference* medium (e.g., texts, images, or videos) to to some other resource of
+the same type. For instance, in computer vision, researchers have used this
+technique to [transfer the styles of Picasso, Van Gogh, and Monet onto a
+painting of da Vinci](https://genekogan.com/works/style-transfer/). In this
+section, you will use the true-casing model to transfer the "casing style" from
+some novel corpus to the data you used above.
+
+#### What to do
+
+1.  Obtain a reference corpus. A pre-tokenized corpus of tweets by
+    [@realDonaldTrump](https://twitter.com/realDonaldTrump) is available
+    [here](http://wellformedness.com/courses/wintercamp/data/trump/).
+    Alternatively, one can obtain data from some other source, such as the
+    social media accounts of other famous personages (e.g.,
+    [@FINALLEVEL](https://twitter.com/finallevel),
+    [@dril](https://twitter.com/dril)) and then tokenize the data as described
+    in Part 2.
+
+2.  Using the data from the previous step, training a casing model as in Part 3.
+
+3.  Using the model from the previous step, apply this model to the test data
+    from Part 2 as in Part 4.
+
+4.  Compare, manually or automatically, the predictions of the style-transfer
+    model to those of the in-domain model. How do they differ?
 
 Postscript
 ----------
