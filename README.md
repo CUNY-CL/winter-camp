@@ -333,7 +333,7 @@ The reason we need `collections.Counter` dictionaries to fill the value entries 
 
 Overall, it is important to note that mixed cased tokens are not very common in the scheme of things, so we don't need to put too much effort into creating a mixed case dictionary in the first place.  
 
-To write a snippet that populates a mixed-case dictionary, you will have to read the [documentation](https://docs.python.org/2/library/collections.html) on `collections.defaultdict` and carefully go through the examples provided to learn how to create default dictionaries.
+To write a snippet that populates a mixed-case dictionary, you will have to read the [documentation]( https://docs.python.org/3/library/collections.html#collections.defaultdict) on `collections.defaultdict` and carefully go through the examples provided to learn how to create default dictionaries.
 
 **HINTS**:
 
