@@ -342,15 +342,19 @@ To write a snippet that populates a mixed-case dictionary, you will have to read
 ```python
         mc_dict = collections.defaultdict(collections.Counter)
         for tok in tok_sent: 
-            ...```
+            ...
+ ```
             
 2.  The line that you will need to create a dictionary entry like the one above can look something like:
 
+```python
         mc_dict[tok.casefold()][tok] += 1
-    
+```
 3.  It's actually easier to fill the value entry of your mixed-case dictionary with only the CharCase pattern with the highest count, instead of the entire Counter dictionary object.  If you plan on doing this, you will need to create another dictionary, where the keys are the casefolded_tokens, and the values are the CharCase patterns with the highest count, so you get something that looks like this: 
 
+```python
         { 'iphone' : 'iPhone', 'mcdonald's' : 'McDonald's' ... } 
+````
     
 4.  Because there are so many mixed-case tokens in data sets that are just typos, like 'ELizabeth', you should write an if-statement that skips over CharCase pattern counts that are less than 2. 
 
