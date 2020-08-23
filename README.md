@@ -323,17 +323,19 @@ Taking all of this into consideration, you need to write a script, `features.py`
 
 #### Populating a mixed-cased dictionary
 
-Tokens with TITLE, LOWER and UPPER tags all have the same CharCase pattern (i.e. first character is capitolized; no chars are capitolized; all chars are capitolized, respectively).  In contrast, tokens with MIXED tags, like *McDonald's* and *LaTeX*, all have different CharCase patterns. So if our model assigns a tag of MIXED to a casefolded token like, *n.y.-based*, it won't restore case to the token because a single, predictable CharCase pattern doesn't exist for all mixed case tokens.  It is for this reason that we need to populate a mixed-case dictionary with MIXED case tokens during the training phase.  
+Tokens with TITLE, LOWER and UPPER tags all have the same CharCase pattern (i.e. first character is capitalized; no chars are capitalized; all chars are capitalized, respectively).  In contrast, tokens like *McDonald's* and *LaTeX* have different CharCase patterns, meaning that we can't just store a set of templates for mixed case tokens.  So if our model assigns a tag of MIXED to a casefolded token like, *n.y.-based*, it won't restore case to the token because a single, predictable CharCase pattern doesn't exist for all mixed case tokens.  It is for this reason that we need to populate a mixed-case dictionary with MIXED case tokens during the training phase.  
 
 The keys for such a dictionary should be casefolded tokens, and the values should be `collections.Counter` dictionaries. For example, for the casefolded token, *iphone*, the entry will look something like:  
 
     { 'iphone' : Counter{ 'iPhone' : 11, 'IPhone' : 5, 'iphone' : 3 } }
 
-The reason we need `collections.Counter` dictionaries to fill the value entries is because the data is bound to have multiple CharCase patterns for a single MIXED token, and the dictionaries will provide the counts for each CharCase pattern, as you can see above.  That way, when the time comes to perform case-restoration on casefolded MIXED tokens, we will have the means to select the CharCase pattern with the highest count.  In sum, if the `test.tok` data set were to contain the token, *iphone*, because the model isn't designed to restore case to MIXED case tokens, we would have to perform a dictionary lookup and select the CharCase pattern with the highest count--i.e. *iPhone*. 
+The reason we need `collections.Counter` dictionaries to fill the value entries is because the data may have more than one CharCase patterns for a single MIXED token (although, most just take one mixed case pattern), and the dictionaries will provide the counts for each CharCase pattern, as you can see above.  That way, when the time comes to perform case-restoration on casefolded MIXED tokens, we will have the means to select the CharCase pattern with the highest count.  In sum, if the `test.tok` data set were to contain the token, *iphone*, because the model isn't designed to restore case to MIXED case tokens, we would have to perform a dictionary lookup and select the CharCase pattern with the highest count--i.e. *iPhone*. 
+
+Overall, it is important to note that mixed cased tokens are not very common in the scheme of things, so we don't need to put too much effort into creating a mixed case dictionary in the first place.  
 
 To write a snippet that populates a mixed-case dictionary, you will have to read the [documentation](https://docs.python.org/2/library/collections.html) on `collections.defaultdict` and carefully go through the examples provided to learn how to create default dictionaries.
 
-TIPS: 
+**HINTS**:
 
 1.  You will need to create an empty dictionary before you start your for-loop that should look something like this: 
 
