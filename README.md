@@ -223,7 +223,7 @@ it would take too long to score every possible path.
 
 #### Deconstructing case.py.
 
-One aspect of the training phrase involves tagging the casefolded tokens in `train.tok` by their case.  For example, the following sequence of tokens, 'He ate a prune wafer.', would be tagged like so: 
+One aspect of the training phrase involves tagging the casefolded tokens in `train.tok` by their case.  For example, the following sequence of tokens, 'He ate a prune wafer.', would be tagged like so--
 
 ``` 
     He  TITLE    
@@ -231,8 +231,10 @@ One aspect of the training phrase involves tagging the casefolded tokens in `tra
     a   LOWER 
     prune   LOWER 
     wafer   LOWER
-    .   DC (I.e. `Don't care` because it's a punctuation mark.)
+    .   DC 
 ```
+
+--where 'DC', meaning 'Don't care', is a tag used to refer to punctuation marks.  
 
 Mixed-cased tokens, like 'LaTeX', need to be tagged according to each character's casing like so: 
 
