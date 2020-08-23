@@ -363,7 +363,7 @@ To write a snippet that populates a mixed-case dictionary, you will have to read
 
 Before you train the `crfsuite` model, you need to extract features from `train.tok` and `dev.tok`, print those features to two different files and populate a and print a mixed-case dictionary to a `json` file.  
 
-To do this, you can write a script, `prep-trainig-data.py`, that imports `collections`, `json`, `case`, and `features`
+To do this, you can write a script, `prep-training-data.py`, that imports `collections`, `json`, `case`, and `features`
 and contains two functions:  
 1. `def _extract_train(source_path: str, sink_path: str, mcdict_path: str) -> None:...`
 2. `def _extract_dev(source_path: str, sink_path: str) -> None:...`
