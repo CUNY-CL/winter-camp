@@ -250,7 +250,7 @@ To tag tokens and characters in this manner, you will be calling many of the fun
 
 If you'd like to go through the exercises below in a Jupyter notebook or code editor, ensure that `case.py` is in the same directory as your Jupyter notebook, and then `import case`. 
 
-- `def get_tc(nunistr: str) -> Tuple[TokenCase, Pattern]:`
+- `def get_tc(nunistr: str) -> Tuple[TokenCase, Pattern]:...`
 
     1. What is the argument of `get_tc`? What is the argument's type? What does `get_tc` return? 
     2. What do you obtain when you take the following strings and pass them as arguments through this function: 'Mary', 'milk', 'LOL', and 'LaTeX'?
@@ -258,19 +258,19 @@ If you'd like to go through the exercises below in a Jupyter notebook or code ed
     4. Which of the strings above returns a list as the second object in the tuple? What do the elements in that list tell us about the string?
     5. There is a way to get this function to only return a tag, or 'TokenCase', of a string type, instead of a tuple. See if you can figure out how to print only the tag of 'Mary' by reading the python documentation for `enum`.) Your expected output should be 'TITLE'.
     
-- `class TokenCase(enum.IntEnum):`
+- `class TokenCase(enum.IntEnum):...`
 
     1. If you haven't figured out the answer to question 5 yet, remind yourself of the type of `get_tc`'s first tuple object by running, say, `type(get_tc('Mary')`     [0]). How is this object related to the snippet of code below?
-    2. Returning to get_tc for a moment... In your own words, describe what this if-statement is requesting:
+    2. Returning to `get_tc` for a moment... In your own words, describe what this if-statement is requesting:
     
-        ```
-            if nunistr.islower():
-                return (TokenCase.LOWER, None)          
-       ```
+    ```python
+        if nunistr.islower():
+            return (TokenCase.LOWER, None)          
+    ```
                
     3. Revisit the `enum` documentation. What is the purpose of the line `@enum.unique`?
     
-- `def get_cc(nunichar: str) -> CharCase:`
+- `def get_cc(nunichar: str) -> CharCase:...`
 
     1. What is the argument of `get_cc`? What is the argument's type? What does `get_cc` return? 
     2. What do you obtain when you run the following arguments through `get_cc`: 'L', 'a', ','?
@@ -278,14 +278,14 @@ If you'd like to go through the exercises below in a Jupyter notebook or code ed
     4. Which kinds of strings return the object <CharCase.DC>? (See line 21 in `case.py` to see what 'DC' stands for.)
     5. Read the python documentation for `unicodedata`, one of the imported libraries for this script. And more generally, read about [`unicode` here](https://docs.python.org/3/howto/unicode.html) Why does the argument have to be a "Unicode character"?
     
-- `def apply_cc(nunichar: str) -> CharCase:`
+- `def apply_cc(nunichar: str) -> CharCase:...`
 
     1. What is the argument of `apply_cc`? What is the argument's type? What does `apply_cc` return? 
     2. Apply CharCase.UPPER to the following strings: 'L', 'a'. Your expected output should be: 'L', 'A'. (HINT: Your second argument is an object returned by `get_tc`.)
     3. Repeat 12 with CharCase.LOWER. Your expected output should be 'l', 'a'.
     4. Write a snippet of code that iterates through the characters in 'latex' and applies the CharCases needed to get the output, 'LaTeX'. (HINT: You can use the `zip()` function to write a for-loop that iterates through two lists at the same time.)
     
- - `def apply_tc(nunistr: str, tc: TokenCase, pattern: Pattern = None) -> str:`
+ - `def apply_tc(nunistr: str, tc: TokenCase, pattern: Pattern = None) -> str:...`
 
     1. What are the arguments of `apply_tc`? What are the arguments' types? What does `apply_tc` return? 
     2. Apply TokenCase.LOWER to the following strings, 'Mr.', 'apple' 'LaTeX'. Your expected output should be 'mr.', 'apple', 'latex'. (HINT: You will need to use `get_tc` to create the second argument of this function.)
@@ -326,8 +326,9 @@ Taking all of this into consideration, you need to write a script, `features.py`
 Tokens with TITLE, LOWER and UPPER tags all have the same CharCase pattern (i.e. first character is capitalized; no chars are capitalized; all chars are capitalized, respectively).  In contrast, tokens like *McDonald's* and *LaTeX* have different CharCase patterns, meaning that we can't just store a set of templates for mixed case tokens.  So if our model assigns a tag of MIXED to a casefolded token like, *n.y.-based*, it won't restore case to the token because a single, predictable CharCase pattern doesn't exist for all mixed case tokens.  It is for this reason that we need to populate a mixed-case dictionary with MIXED case tokens during the training phase.  
 
 The keys for such a dictionary should be casefolded tokens, and the values should be `collections.Counter` dictionaries. For example, for the casefolded token, *iphone*, the entry will look something like:  
-
+```python
     { 'iphone' : Counter{ 'iPhone' : 11, 'IPhone' : 5, 'iphone' : 3 } }
+```
 
 The reason we need `collections.Counter` dictionaries to fill the value entries is because the data may have more than one CharCase patterns for a single MIXED token (although, most just take one mixed case pattern), and the dictionaries will provide the counts for each CharCase pattern, as you can see above.  That way, when the time comes to perform case-restoration on casefolded MIXED tokens, we will have the means to select the CharCase pattern with the highest count.  In sum, if the `test.tok` data set were to contain the token, *iphone*, because the model isn't designed to restore case to MIXED case tokens, we would have to perform a dictionary lookup and select the CharCase pattern with the highest count--i.e. *iPhone*. 
 
