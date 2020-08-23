@@ -292,7 +292,7 @@ If you'd like to go through the exercises below in a Jupyter notebook or code ed
     3. Do the same for TokenCase.UPPER. Your expected output should be 'MR.', 'APPLE', 'LATEX'.
     4. Do the same for TokenCase.TITLE. Your expected output should be 'Mr.', 'Apple', 'Latex'.
     
-#### Extracting token features to train the model
+#### Feature extraction
 
 During the training phase, the model must be given a set of labelled token features which will be used to calculate the probabilities of all TokenCases in `train.tok`.  Token features can include word context features including tokens that appear to the left and right of the token of interest, in addition to suffix features.  For example, the labelled token features for the sentence, 'Nelson Holdings International Ltd. dropped the most on a percentage basis , to 1,000 shares from 255,923 .', will look like the following in **Figure 2**-- 
 
@@ -349,7 +349,7 @@ TIPS:
 
         { 'iphone' : 'iPhone', 'mcdonald's' : 'McDonald's' ... } 
     
-4.  Because there are so many mixed-case tokens in data sets that are just typos, like 'ELizabeth', you should write an if-statement that skips over CharCase pattern counts that are < 2. 
+4.  Because there are so many mixed-case tokens in data sets that are just typos, like 'ELizabeth', you should write an if-statement that skips over CharCase pattern counts that are less than 2. 
 
 #### Preparing the data for training the case tagger
 
@@ -364,7 +364,7 @@ The first function should do all of the following:
 1. extract features from `train.tok` using `features.py` and add a column of tags, as shown in **Figure 2** above.
 2. print the extracted features from 1. to a plain text file called, say, `train_feats`
 3. populate a mixed case dictionary, `mc_dict`
-4. print the dictionary object from 3. to a `json` file.  
+4. print the dictionary object from 3. to a JSON file.  
 
 The second should: 
 1.  extract features from `dev.tok` using `features.py` and a column of tags
@@ -400,7 +400,7 @@ After you have created `train_feats`, `dev_feats`, and `mc_dict`, (the latter of
 
         Holdout group: 2
         
-The total training time of a `train_feats` document of 20MB should take approximately 1-3 minutes.  At the ending of training, you should see a file in your directory with the name you gave to your_model_path that is not human readable.  
+The total training time of a `train_feats` document of 20MB should take approximately 1-3 minutes.  At the end of training, you should see a file in your directory with the name you gave to your_model_path that is not human readable.  
 
 ### Part 4: prediction
 
