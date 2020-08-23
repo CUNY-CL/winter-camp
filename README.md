@@ -248,7 +248,7 @@ Mixed-cased tokens, like 'LaTeX', need to be tagged according to each character'
 
 To tag tokens and characters in this manner, you will be calling many of the functions in `case.py`.  As such, the purpose of this section is to give you some exercises to help you learn how the different functions and classes in `case.py` work together to tag tokens and characters by their case, starting from the function `get_tc`. 
 
-If you'd like to go through the exercises below in a Jupyter notebook or code editor, make sure that `case.py` is in the same directory as your file, and then `import case`.  
+If you'd like to go through the exercises below in a Jupyter notebook or code editor, ensure that `case.py` is in the same directory as your Jupyter notebook, and then `import case`. 
 
 - `def get_tc(nunistr: str) -> Tuple[TokenCase, Pattern]:`
 
