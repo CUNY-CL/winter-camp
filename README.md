@@ -365,8 +365,8 @@ Before you train the `crfsuite` model, you need to extract features from `train.
 
 To do this, you can write a script, `prep-trainig-data.py`, that imports `collections`, `json`, `case`, and `features`
 and contains two functions:  
-1. `def _extract_train(source_path: str, sink_path: str, mcdict_path: str) -> None:`
-2. `def _extract_dev(source_path: str, sink_path: str) -> None:`
+1. `def _extract_train(source_path: str, sink_path: str, mcdict_path: str) -> None:...`
+2. `def _extract_dev(source_path: str, sink_path: str) -> None:...`
 
 The first function should do all of the following: 
 1. extract features from `train.tok` using `features.py` and add a column of tags, as shown in **Figure 2** above.
