@@ -260,7 +260,7 @@ If you'd like to go through the exercises below in a Jupyter notebook or code ed
     
 - `class TokenCase(enum.IntEnum):...`
 
-    1. If you haven't figured out the answer to question 5 yet, remind yourself of the type of `get_tc`'s first tuple object by running, say, `type(get_tc('Mary')`     [0]). How is this object related to the snippet of code below?
+    1. If you haven't figured out the answer to question 5 yet, remind yourself of the type of `get_tc`'s first tuple object by running, say, `type(get_tc('Mary')[0]`). How is this object related to the snippet of code below?
     2. Returning to `get_tc` for a moment... In your own words, describe what this if-statement is requesting:
     
     ```python
