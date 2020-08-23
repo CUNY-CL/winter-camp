@@ -260,7 +260,7 @@ If you'd like to go through the exercises below in a Jupyter notebook or code ed
     
 - `class TokenCase(enum.IntEnum):`
 
-    1. If you haven't figured out the answer to question 5 yet, remind yourself of the type of get_tc's first tuple object by running, say, type(get_tc('Mary')     [0]). How is this object related to the snippet of code below?
+    1. If you haven't figured out the answer to question 5 yet, remind yourself of the type of `get_tc`'s first tuple object by running, say, `type(get_tc('Mary')`     [0]). How is this object related to the snippet of code below?
     2. Returning to get_tc for a moment... In your own words, describe what this if-statement is requesting:
     
         ```
@@ -273,9 +273,9 @@ If you'd like to go through the exercises below in a Jupyter notebook or code ed
 - `def get_cc(nunichar: str) -> CharCase:`
 
     1. What is the argument of `get_cc`? What is the argument's type? What does `get_cc` return? 
-    2. What do you obtain when you run the following arguments through get_cc: 'L', 'a', ','?
-    3. Print only the string version of the CharCase tag of get_tc('L'). Your expected output should be 'UPPER'.
-    4. Which kinds of strings return the object <CharCase.DC>? (See line 21 in case.py to see what 'DC' stands for.)
+    2. What do you obtain when you run the following arguments through `get_cc`: 'L', 'a', ','?
+    3. Print only the string version of the CharCase tag of `get_tc('L')`. Your expected output should be 'UPPER'.
+    4. Which kinds of strings return the object <CharCase.DC>? (See line 21 in `case.py` to see what 'DC' stands for.)
     5. Read the python documentation for `unicodedata`, one of the imported libraries for this script. And more generally, read about `unicode` characters here: https://docs.python.org/3/howto/unicode.html. Why does the argument have to be a "Unicode character"?
     
 - `def apply_cc(nunichar: str) -> CharCase:`
