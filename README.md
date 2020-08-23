@@ -339,10 +339,11 @@ To write a snippet that populates a mixed-case dictionary, you will have to read
 
 1.  You will need to create an empty dictionary before you start your for-loop that should look something like this: 
 
+```python
         mc_dict = collections.defaultdict(collections.Counter)
         for tok in tok_sent: 
-            pass
-    
+            ...```
+            
 2.  The line that you will need to create a dictionary entry like the one above can look something like:
 
         mc_dict[tok.casefold()][tok] += 1
