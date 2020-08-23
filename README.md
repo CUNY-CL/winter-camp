@@ -226,22 +226,22 @@ it would take too long to score every possible path.
 One aspect of the training phrase involves tagging the casefolded tokens in `train.tok` by their case.  For example, the following sequence of tokens, 'He ate a prune wafer.', would be tagged like so: 
 
 ``` 
-    He  TokenCase.TITLE    
-    ate TokenCase.LOWER 
-    a   TokenCase.LOWER 
-    prune   Tokencase.LOWER 
-    wafer   TokenCase.LOWER
-    .   TokenCase.DC (I.e. `Don't care` because it's a punctuation mark.)
+    He  TITLE    
+    ate LOWER 
+    a   LOWER 
+    prune   LOWER 
+    wafer   LOWER
+    .   DC (I.e. `Don't care` because it's a punctuation mark.)
 ```
 
 Mixed-cased tokens, like 'LaTeX', need to be tagged according to each character's casing like so: 
 
 ``` 
-    L CharCase.UPPER
-    a   CharCase.LOWER
-    T   CharCase.UPPER  
-    e   CharCase.LOWER
-    X   CharCase.UPPER
+    L   UPPER
+    a   LOWER
+    T   UPPER  
+    e   LOWER
+    X   UPPER
 ```
 
 To tag tokens and characters in this manner, you will be calling many of the functions in `case.py`.  As such, the purpose of this section is to give you some exercises to help you learn how the different functions and classes in `case.py` work together to tag tokens and characters by their case, starting from the function `get_tc`. 
