@@ -221,7 +221,7 @@ it would take too long to score every possible path.
 
 ### Part 3: training
 
-#### Deconstructing case.py.
+#### Deconstructing case.py
 
 One aspect of the training phrase involves tagging the casefolded tokens in `train.tok` by their case.  For example, the following sequence of tokens, 'He ate a prune wafer.', would be tagged like so--
 
@@ -276,25 +276,25 @@ If you'd like to go through the exercises below in a Jupyter notebook or code ed
     2. What do you obtain when you run the following arguments through `get_cc`: 'L', 'a', ','?
     3. Print only the string version of the CharCase tag of `get_tc('L')`. Your expected output should be 'UPPER'.
     4. Which kinds of strings return the object <CharCase.DC>? (See line 21 in `case.py` to see what 'DC' stands for.)
-    5. Read the python documentation for `unicodedata`, one of the imported libraries for this script. And more generally, read about `unicode` characters here: https://docs.python.org/3/howto/unicode.html. Why does the argument have to be a "Unicode character"?
+    5. Read the python documentation for `unicodedata`, one of the imported libraries for this script. And more generally, read about [`unicode` here](https://docs.python.org/3/howto/unicode.html) Why does the argument have to be a "Unicode character"?
     
 - `def apply_cc(nunichar: str) -> CharCase:`
 
     1. What is the argument of `apply_cc`? What is the argument's type? What does `apply_cc` return? 
-    2. Apply CharCase.UPPER to the following strings: 'L', 'a'. Your expected output should be: 'L', 'A'. (HINT: Your second argument is an object returned by get_tc.)
+    2. Apply CharCase.UPPER to the following strings: 'L', 'a'. Your expected output should be: 'L', 'A'. (HINT: Your second argument is an object returned by `get_tc`.)
     3. Repeat 12 with CharCase.LOWER. Your expected output should be 'l', 'a'.
-    4. Write a snippet of code that iterates through the characters in 'latex' and applies the CharCases needed to get the output, 'LaTeX'. (TIP: You can use the zip() function to write a for-loop that iterates through two lists at the same time.)
+    4. Write a snippet of code that iterates through the characters in 'latex' and applies the CharCases needed to get the output, 'LaTeX'. (HINT: You can use the `zip()` function to write a for-loop that iterates through two lists at the same time.)
     
  - `def apply_tc(nunistr: str, tc: TokenCase, pattern: Pattern = None) -> str:`
 
     1. What are the arguments of `apply_tc`? What are the arguments' types? What does `apply_tc` return? 
-    2. Apply TokenCase.LOWER to the following strings, 'Mr.', 'apple' 'LaTeX'. Your expected output should be 'mr.', 'apple', 'latex'. (HINT: You will need to use get_tc to create the second argument of this function.)
+    2. Apply TokenCase.LOWER to the following strings, 'Mr.', 'apple' 'LaTeX'. Your expected output should be 'mr.', 'apple', 'latex'. (HINT: You will need to use `get_tc` to create the second argument of this function.)
     3. Do the same for TokenCase.UPPER. Your expected output should be 'MR.', 'APPLE', 'LATEX'.
     4. Do the same for TokenCase.TITLE. Your expected output should be 'Mr.', 'Apple', 'Latex'.
     
-#### Extracting token features to train the model.
+#### Extracting token features to train the model
 
-During the training phase, the model must be given a set of labelled token features which will be used to calculate the probabilities of all TokenCases in 'train.tok'.  Token features can include word context features including tokens that appear to the left and right of the token of interest, in addition to suffix features.  For example, the labelled token features for the sentence, 'Nelson Holdings International Ltd. dropped the most on a percentage basis , to 1,000 shares from 255,923 .', will look like the following in **Figure 2**-- 
+During the training phase, the model must be given a set of labelled token features which will be used to calculate the probabilities of all TokenCases in `train.tok`.  Token features can include word context features including tokens that appear to the left and right of the token of interest, in addition to suffix features.  For example, the labelled token features for the sentence, 'Nelson Holdings International Ltd. dropped the most on a percentage basis , to 1,000 shares from 255,923 .', will look like the following in **Figure 2**-- 
 
 ```
 TITLE   t[0]=nelson     __BOS__ suf1=n  suf2=on suf3=son
@@ -321,7 +321,7 @@ DC      t[0]=.  __EOS__
 
 Taking all of this into consideration, you need to write a script, `features.py`, that extracts the features of every token in `train.tok` with a newline between each sentence, and without the first column of tags shown above (They have been included in the excerpt above for pedagogical purposes).   If you'd like, you can refer to a template, [features.py](https://github.com/CUNY-CL/WinterCamp/blob/TODOs/src/features.py), to guide your thinking given that this is a challenging script to write.   
 
-#### Populating a mixed-cased dictionary.
+#### Populating a mixed-cased dictionary
 
 Tokens with TITLE, LOWER and UPPER tags all have the same CharCase pattern (i.e. first character is capitolized; no chars are capitolized; all chars are capitolized, respectively).  In contrast, tokens with MIXED tags, like *McDonald's* and *LaTeX*, all have different CharCase patterns. So if our model assigns a tag of MIXED to a casefolded token like, *n.y.-based*, it won't restore case to the token because a single, predictable CharCase pattern doesn't exist for all mixed case tokens.  It is for this reason that we need to populate a mixed-case dictionary with MIXED case tokens during the training phase.  
 
