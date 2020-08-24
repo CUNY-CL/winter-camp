@@ -264,8 +264,8 @@ If you'd like to go through the exercises below in a Jupyter notebook or code ed
     2. Returning to `get_tc` for a moment... In your own words, describe what this if-statement is requesting:
     
     ```python
-        if nunistr.islower():
-            return (TokenCase.LOWER, None)          
+    if nunistr.islower():
+        return (TokenCase.LOWER, None)          
     ```
                
     3. Revisit the `enum` documentation. What is the purpose of the line `@enum.unique`?
@@ -294,7 +294,11 @@ If you'd like to go through the exercises below in a Jupyter notebook or code ed
     
 #### Feature extraction
 
-During the training phase, the model must be given a set of labelled token features which will be used to calculate the probabilities of all TokenCases in `train.tok`.  Token features can include word context features including tokens that appear to the left and right of the token of interest, in addition to suffix features.  For example, the labelled token features for the sentence, 'Nelson Holdings International Ltd. dropped the most on a percentage basis , to 1,000 shares from 255,923 .', will look like the following in **Figure 2**-- 
+During the training phase, the model must be given a set of labelled token features which will be used to calculate the probabilities of all TokenCases in `train.tok`.  Token features can include word context features including tokens that appear to the left and right of the token of interest, in addition to suffix features.  For example, the labelled token features for the sentence-- 
+
+```'Nelson Holdings International Ltd. dropped the most on a percentage basis , to 1,000 shares from 255,923 .'```
+
+--will look like the following in **Figure 2**-- 
 
 ```
 TITLE   t[0]=nelson     __BOS__ suf1=n  suf2=on suf3=son
@@ -317,22 +321,22 @@ DC      t[0]=255,923    t[-1]=from      t[+1]=. t[-1]=from^t[+1]=.      suf1=3  
 DC      t[0]=.  __EOS__
 ```
 
---where the TokenCase labels are included the first column, and the token features are included in the rest of the columns.  Later on, in **Part 4** of this experiment, the model will refer to these calculated probabilities to predict the TokenCases of all unseen tokens in 'test.tok'.  
+--where the TokenCase labels are included the first column, and the token features are included in the rest of the columns.  Later on, in **Part 4** of this experiment, the model will refer to these calculated probabilities to predict the TokenCases of all unseen tokens in `test.tok`.  
 
 Taking all of this into consideration, you need to write a script, `features.py`, that extracts the features of every token in `train.tok` with a newline between each sentence, and without the first column of tags shown above (They have been included in the excerpt above for pedagogical purposes).   If you'd like, you can refer to a template, [features.py](https://github.com/CUNY-CL/WinterCamp/blob/TODOs/src/features.py), to guide your thinking given that this is a challenging script to write.   
 
 #### Populating a mixed-cased dictionary
 
-Tokens with TITLE, LOWER and UPPER tags all have the same CharCase pattern (i.e. first character is capitalized; no chars are capitalized; all chars are capitalized, respectively).  In contrast, tokens like *McDonald's* and *LaTeX* have different CharCase patterns, meaning that we can't just store a set of templates for mixed case tokens.  So if our model assigns a tag of MIXED to a casefolded token like, *n.y.-based*, it won't restore case to the token because a single, predictable CharCase pattern doesn't exist for all mixed case tokens.  It is for this reason that we need to populate a mixed-case dictionary with MIXED case tokens during the training phase.  
+Tokens with TITLE, LOWER and UPPER tags all have the same CharCase pattern (i.e. first character is capitalized; no chars are capitalized; all chars are capitalized, respectively).  In contrast, tokens like 'McDonald's' and 'LaTeX' have different CharCase patterns, meaning that we can't just store a set of templates for mixed case tokens.  So if our model assigns a tag of MIXED to a casefolded token like, 'n.y.-based', it won't restore case to the token because a single, predictable CharCase pattern doesn't exist for all mixed case tokens.  It is for this reason that we need to populate a mixed-case dictionary with MIXED case tokens during the training phase.  
 
-The keys for such a dictionary should be casefolded tokens, and the values should be `collections.Counter` dictionaries. For example, for the casefolded token, *iphone*, the entry will look something like:  
+The keys for such a dictionary should be casefolded tokens, and the values should be `collections.Counter` dictionaries. For example, for the casefolded token, 'iphone', the entry will look something like:  
 ```python
-    { 'iphone' : Counter{ 'iPhone' : 11, 'IPhone' : 5, 'iphone' : 3 } }
+{ 'iphone' : Counter{ 'iPhone' : 11, 'IPhone' : 5, 'iphone' : 3 } }
 ```
 
-The reason we need `collections.Counter` dictionaries to fill the value entries is because the data may have more than one CharCase patterns for a single MIXED token (although, most just take one mixed case pattern), and the dictionaries will provide the counts for each CharCase pattern, as you can see above.  That way, when the time comes to perform case-restoration on casefolded MIXED tokens, we will have the means to select the CharCase pattern with the highest count.  In sum, if the `test.tok` data set were to contain the token, *iphone*, because the model isn't designed to restore case to MIXED case tokens, we would have to perform a dictionary lookup and select the CharCase pattern with the highest count--i.e. *iPhone*. 
+The reason we need `collections.Counter` dictionaries to fill the value entries is because the data may have more than one CharCase patterns for a single MIXED token (although, most just take one mixed case pattern), and the dictionaries will provide the counts for each CharCase pattern, as you can see above.  That way, when the time comes to perform case-restoration on casefolded MIXED tokens, we will have the means to select the CharCase pattern with the highest count.  
 
-Overall, it is important to note that mixed cased tokens are not very common in the scheme of things, so we don't need to put too much effort into creating a mixed case dictionary in the first place.  
+In sum, if the `test.tok` data set were to contain the token, 'iphone', because the model isn't designed to restore case to MIXED case tokens, we would have to perform a dictionary lookup and select the CharCase pattern with the highest count--i.e. 'iPhone'. Overall, it is important to note that mixed cased tokens are not very common in the scheme of things, so we don't need to put too much effort into creating a mixed case dictionary in the first place.  
 
 To write a snippet that populates a mixed-case dictionary, you will have to read the [documentation]( https://docs.python.org/3/library/collections.html#collections.defaultdict) on `collections.defaultdict` and carefully go through the examples provided to learn how to create default dictionaries.
 
@@ -341,42 +345,42 @@ To write a snippet that populates a mixed-case dictionary, you will have to read
 1.  You will need to create an empty dictionary before you start your for-loop that should look something like this: 
 
 ```python
-        mc_dict = collections.defaultdict(collections.Counter)
-        for tok in tok_sent: 
-            ...
+mc_dict = collections.defaultdict(collections.Counter)
+for token in tokenized_sentence:
+    ...
  ```
             
 2.  The line that you will need to create a dictionary entry like the one above can look something like:
 
 ```python
-        mc_dict[tok.casefold()][tok] += 1
+mc_dict[token.casefold()][token] += 1
 ```
 3.  It's actually easier to fill the value entry of your mixed-case dictionary with only the CharCase pattern with the highest count, instead of the entire Counter dictionary object.  If you plan on doing this, you will need to create another dictionary, where the keys are the casefolded_tokens, and the values are the CharCase patterns with the highest count, so you get something that looks like this: 
 
 ```python
-        { 'iphone' : 'iPhone', 'mcdonald's' : 'McDonald's' ... } 
+{ 'iphone' : 'iPhone', 'mcdonald's' : 'McDonald's' ... } 
 ````
     
-4.  Because there are so many mixed-case tokens in data sets that are just typos, like 'ELizabeth', you should write an if-statement that skips over CharCase pattern counts that are less than 2. 
+4.  Because there are mixed-case tokens in data sets that are either deviantly cased or typos, like 'Mcdonald's', you should write an if-statement that skips over CharCase pattern counts that are less than 2. 
 
 #### Preparing the data for training the case tagger
 
-Before you train the `crfsuite` model, you need to extract features from `train.tok` and `dev.tok`, print those features to two different files and populate a and print a mixed-case dictionary to a `json` file.  
+Before you train the `crfsuite` model, you need to extract features from `train.tok` and `dev.tok`, print those features to two different files and populate a and print a mixed-case dictionary to a JSON file.  
 
-To do this, you can write a script, `prep-training-data.py`, that imports `collections`, `json`, `case`, and `features`
+To do this, you can write a script that imports `collections`, `json`, `case`, and `features`
 and contains two functions:  
-1. `def _extract_train(train_source_path: str, train_sink_path: str, mcdict_sink_path: str) -> None:...`
-2. `def _extract_dev(dev_source_path: str, dev_sink_path: str) -> None:...`
+1. `def _extract_train(train_source_path: str, train_sink_path: str, mcdict_sink_path: str) -> None:...`; and
+2. `def _extract_dev(dev_source_path: str, dev_sink_path: str) -> None:...`.
 
 The first function should do all of the following: 
-1. extract features from `train.tok` using `features.py` and add a column of tags, as shown in **Figure 2** above.
-2. print the extracted features from 1. to `train_sink_path`
-3. populate a mixed case dictionary
-4. print the dictionary object from 3. to `mcdict_sink_path`, which should be a JSON file
+1. extract features from `train.tok` and add a column of tags, as shown in **Figure 2** above;
+2. write the extracted features from 1. to `train_sink_path`;
+3. populate a mixed case dictionary; and
+4. write the dictionary object from 3. to `mcdict_sink_path`, which should be a JSON file.
 
 The second should: 
-1.  extract features from `dev.tok` using `features.py` and a column of tags
-2.  print the extracted features from 1. to `dev_sink_path`
+1.  extract features from `dev.tok` and a column of tags; and
+2.  write the extracted features from 1. to `dev_sink_path`.
 
 #### Training the model 
 
@@ -416,16 +420,16 @@ The total training time of a `train_sink_path` document of 20MB should take appr
 ### Part 4: prediction
 
 To predict, or restore case to the tokens in `test.tok` using the model you trained in **Part 3**, you will need to: 
-1. Extract features from `test.tok` and write them to `features_sink_path`
-2. Call your trained model from **Part 3** in the terminal by running--
+1. extract features from `test.tok` and write them to `features_sink_path`; and
+2. call your trained model from **Part 3** in the terminal by running--
 
 ```{.bash}
 crfsuite tag -m model_sink_path predictions_sink_path
 ```
 
---where `predictions_sink_path` is the name of the file where you'd like the predicted tags and tokens to be written to
-3.  Use the predicted tags in `predictions_sink_path` to apply casing to casefolded tokens in `test.tok`
-4.  Write the case-restored tokens to a file that is formatted exactly like `test.tok`
+--where `predictions_sink_path` is the name of the file where you'd like the predicted tags and tokens to be written to; 
+3.  use the predicted tags in `predictions_sink_path` to apply casing to casefolded tokens in `test.tok`; and
+4.  write the case-restored tokens to a file that is formatted exactly like `test.tok`.  
 
 ### Part 5: evaluation
 
