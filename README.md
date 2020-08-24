@@ -323,7 +323,7 @@ DC      t[0]=.  __EOS__
 
 --where the TokenCase labels are included the first column, and the token features are included in the rest of the columns.  Later on, in **Part 4** of this experiment, the model will refer to these calculated probabilities to predict the TokenCases of all unseen tokens in `test.tok`.  
 
-Taking all of this into consideration, you need to write a script, `features.py`, that extracts the features of every token in `train.tok` with a newline between each sentence, and without the first column of tags shown above (They have been included in the excerpt above for pedagogical purposes).   If you'd like, you can refer to a template, [features.py](https://github.com/CUNY-CL/WinterCamp/blob/TODOs/src/features.py), to guide your thinking given that this is a challenging script to write.   
+Taking all of this into consideration, you need to write a script that extracts the features of every token in `train.tok` with a newline between each sentence, and without the first column of tags shown above (They have been included in the excerpt above for pedagogical purposes).   If you'd like, you can refer to a template, [features.py](https://github.com/CUNY-CL/WinterCamp/blob/TODOs/src/features.py), to guide your thinking given that this is a challenging script to write.   
 
 #### Populating a mixed-cased dictionary
 
