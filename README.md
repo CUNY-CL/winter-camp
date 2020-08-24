@@ -365,26 +365,26 @@ Before you train the `crfsuite` model, you need to extract features from `train.
 
 To do this, you can write a script, `prep-training-data.py`, that imports `collections`, `json`, `case`, and `features`
 and contains two functions:  
-1. `def _extract_train(source_path: str, sink_path: str, mcdict_path: str) -> None:...`
-2. `def _extract_dev(source_path: str, sink_path: str) -> None:...`
+1. `def _extract_train(source_path: str, train_sink_path: str, mcdict_path: str) -> None:...`
+2. `def _extract_dev(source_path: str, dev_sink_path: str) -> None:...`
 
 The first function should do all of the following: 
 1. extract features from `train.tok` using `features.py` and add a column of tags, as shown in **Figure 2** above.
-2. print the extracted features from 1. to `sink_path`
-3. populate a mixed case dictionary, `mc_dict`
+2. print the extracted features from 1. to `train_sink_path`
+3. populate a mixed case dictionary
 4. print the dictionary object from 3. to `mcdict_path`, which should be a JSON file
 
 The second should: 
 1.  extract features from `dev.tok` using `features.py` and a column of tags
-2.  print the extracted features from 1. to `sink_path`
+2.  print the extracted features from 1. to `dev_sink_path`
 
 #### Training the model 
 
-After you have created `train_feats`, `dev_feats`, and `mc_dict`, (the latter of which will not be used until the prediction phase of the experiment), you can open a terminal, move into the appropriate directory and run the following-- 
+After you have created `train_sink_path`, `dev_sink_path`, and `mc_dict_path`, (the latter of which will not be used until the prediction phase of the experiment), you can open a terminal, move into the appropriate directory and run the following-- 
 
-        % crfsuite learn -p  feature.possible_states=1 -p feature.possible_transitions=1 -m your_model_path -e2 train_sink_path dev_sink_path 
+        % crfsuite learn -p  feature.possible_states=1 -p feature.possible_transitions=1 -m model_sink_path -e2 train_sink_path dev_sink_path 
         
---where 'your_model_path' is the name you choose to give your model, 'train_sink_path' is `train_feats` and 'dev_sink_path' is `dev_feats`.  After running the command, you should see information like this in your terminal:  
+--where `model_sink_path` is the name you choose to give your model.  After running the command, you should see information like this in your terminal:  
 
         CRFSuite 0.12  Copyright (c) 2007-2011 Naoaki Okazaki
         Start time of the training: 2020-08-10T01:34:06Z
@@ -408,7 +408,7 @@ After you have created `train_feats`, `dev_feats`, and `mc_dict`, (the latter of
 
         Holdout group: 2
         
-The total training time of a `train_feats` document of 20MB should take approximately 1-3 minutes.  At the end of training, you should see a file in your directory with the name you gave to your_model_path that is not human readable.  
+The total training time of a `train_sink_path` document of 20MB should take approximately 1-3 minutes.  At the end of training, `model_sink_path` will appear as a non-human readable file in your directory. 
 
 ### Part 4: prediction
 
