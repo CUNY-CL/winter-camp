@@ -20,25 +20,14 @@ def extract(tokens: List[str]) -> List[List[str]]:
 
     Returns:  vectors
 
-    Tip:  You may want to write a separate function that extracts some or all suffix features (e.g. 'def _suffix_features()' above) and then call it in this function.
+    HINT:  You may want to write a separate function that extracts some or all suffix features (e.g. 'def _suffix_features()' above) and then call it in this function.
     """
     ... 
 
 
-# tokenizes and casefolds the sentence, 'Nelson Holdings International Ltd. dropped the most on a percentage basis , to 1,000 shares from 255,923.'
-sent = 'Nelson Holdings International Ltd. dropped the most on a percentage basis , to 1,000 shares from 255,923 .'
-folded_toks = [tok.casefold() for tok in sent.split()]
-
-# creates and prints the output vector object.  
-sent_feats = extract(folded_toks)
-print(sent_feats)
-
 """
-If you run the following command in the terminal-- 
-
-    python features.py
-
---your output should look like this: 
+If you run extract features from on the tokenized sentence, 'Nelson Holdings International Ltd. dropped the most on a percentage basis , to 1,000 shares from 255,923.',
+your output should look like this: 
 
     t[0]=nelson     __BOS__ suf1=n  suf2=on suf3=son
     t[0]=holdings   t[-1]=nelson    t[+1]=international     t[-1]=nelson^t[+1]=international        suf1=s  suf2=gs            suf3=ngs
