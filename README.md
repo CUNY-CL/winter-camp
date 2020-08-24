@@ -365,14 +365,14 @@ Before you train the `crfsuite` model, you need to extract features from `train.
 
 To do this, you can write a script, `prep-training-data.py`, that imports `collections`, `json`, `case`, and `features`
 and contains two functions:  
-1. `def _extract_train(source_path: str, train_sink_path: str, mcdict_path: str) -> None:...`
-2. `def _extract_dev(source_path: str, dev_sink_path: str) -> None:...`
+1. `def _extract_train(train_source_path: str, train_sink_path: str, mcdict_sink_path: str) -> None:...`
+2. `def _extract_dev(dev_source_path: str, dev_sink_path: str) -> None:...`
 
 The first function should do all of the following: 
 1. extract features from `train.tok` using `features.py` and add a column of tags, as shown in **Figure 2** above.
 2. print the extracted features from 1. to `train_sink_path`
 3. populate a mixed case dictionary
-4. print the dictionary object from 3. to `mcdict_path`, which should be a JSON file
+4. print the dictionary object from 3. to `mcdict_sink_path`, which should be a JSON file
 
 The second should: 
 1.  extract features from `dev.tok` using `features.py` and a column of tags
@@ -380,7 +380,7 @@ The second should:
 
 #### Training the model 
 
-After you have created `train_sink_path`, `dev_sink_path`, and `mc_dict_path`, (the latter of which will not be used until the prediction phase of the experiment), you can open a terminal, move into the appropriate directory and run the following-- 
+After you have created `train_sink_path`, `dev_sink_path`, and `mcdict_sink_path`, (the latter of which will not be used until the prediction phase of the experiment), you can open a terminal, move into the appropriate directory and run the following-- 
 
         % crfsuite learn -p  feature.possible_states=1 -p feature.possible_transitions=1 -m model_sink_path -e2 train_sink_path dev_sink_path 
         
@@ -412,7 +412,13 @@ The total training time of a `train_sink_path` document of 20MB should take appr
 
 ### Part 4: prediction
 
-**TODO**: call `crfsuite tag` and convert back to tokenized format.
+To predict, or casetag, the tokens in `test.tok` using the model you trained in **Part 3**, you will need to: 
+1. Extract features from `test.tok` and write them to `features_sink_path`
+2. Call your trained model from **Part 3** in the terminal by running--
+```% crfsuite tag -m model_sink_path predictions_sink_path```
+--where `predictions_sink_path` is the name of the file where you'd like the predicted tags and tokens to be written to
+3.  Use the predicted tags in `predictions_sink_path` to apply casing to casefolded tokens in `test.tok`
+4.  Write the case-restored tokens to a file that is formatted exactly like `test.tok`.  
 
 ### Part 5: evaluation
 
