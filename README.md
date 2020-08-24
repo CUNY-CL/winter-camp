@@ -370,13 +370,13 @@ and contains two functions:
 
 The first function should do all of the following: 
 1. extract features from `train.tok` using `features.py` and add a column of tags, as shown in **Figure 2** above.
-2. print the extracted features from 1. to a plain text file called, say, `train_feats`
+2. print the extracted features from 1. to `sink_path`
 3. populate a mixed case dictionary, `mc_dict`
-4. print the dictionary object from 3. to a JSON file.  
+4. print the dictionary object from 3. to `mcdict_path`, which should be a JSON file
 
 The second should: 
 1.  extract features from `dev.tok` using `features.py` and a column of tags
-2.  print the extracted features from 1. to a plain text file called, say, `dev_feats`
+2.  print the extracted features from 1. to `sink_path`
 
 #### Training the model 
 
