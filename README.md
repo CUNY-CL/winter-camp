@@ -412,13 +412,13 @@ The total training time of a `train_sink_path` document of 20MB should take appr
 
 ### Part 4: prediction
 
-To predict, or casetag, the tokens in `test.tok` using the model you trained in **Part 3**, you will need to: 
+To predict, or restore case to the tokens in `test.tok` using the model you trained in **Part 3**, you will need to: 
 1. Extract features from `test.tok` and write them to `features_sink_path`
 2. Call your trained model from **Part 3** in the terminal by running--
 ```% crfsuite tag -m model_sink_path predictions_sink_path```
 --where `predictions_sink_path` is the name of the file where you'd like the predicted tags and tokens to be written to
 3.  Use the predicted tags in `predictions_sink_path` to apply casing to casefolded tokens in `test.tok`
-4.  Write the case-restored tokens to a file that is formatted exactly like `test.tok`.  
+4.  Write the case-restored tokens to a file that is formatted exactly like `test.tok`
 
 ### Part 5: evaluation
 
