@@ -382,32 +382,35 @@ The second should:
 
 After you have created `train_sink_path`, `dev_sink_path`, and `mcdict_sink_path`, (the latter of which will not be used until the prediction phase of the experiment), you can open a terminal, move into the appropriate directory and run the following-- 
 
-        % crfsuite learn -p  feature.possible_states=1 -p feature.possible_transitions=1 -m model_sink_path -e2 train_sink_path dev_sink_path 
+```{.bash}
+crfsuite learn -p  feature.possible_states=1 -p feature.possible_transitions=1 -m model_sink_path -e2 train_sink_path dev_sink_path
+```
         
 --where `model_sink_path` is the name you choose to give your model.  After running the command, you should see information like this in your terminal:  
 
-        CRFSuite 0.12  Copyright (c) 2007-2011 Naoaki Okazaki
-        Start time of the training: 2020-08-10T01:34:06Z
+```{.bash}
+  CRFSuite 0.12  Copyright (c) 2007-2011 Naoaki Okazaki
+  Start time of the training: 2020-08-10T01:34:06Z
+  
+  Reading the data set(s)
+  [1] train_feats.txt
+  0....1....2....3....4....5....6....7....8....9....10
+  Number of instances: 10001
+  Seconds required: 3.795
+  [2] dev_feats.txt
+  0....1....2....3....4....5....6....7....8....9....1
+  Number of instances: 1001
+  Seconds required: 0.255
 
-        Reading the data set(s)
-        [1] train_feats.txt
-        0....1....2....3....4....5....6....7....8....9....10
-        Number of instances: 10001
-        Seconds required: 3.795
-        [2] dev_feats.txt
-        0....1....2....3....4....5....6....7....8....9....10
-        Number of instances: 1001
-        Seconds required: 0.255
-
-        Statistics the data set(s)
-        Number of data sets (groups): 2
-        Number of instances: 11000
-        Number of items: 256678
-        Number of attributes: 236290
-        Number of labels: 5
-
-        Holdout group: 2
-        
+  Statistics the data set(s)
+  Number of data sets (groups): 2
+  Number of instances: 11000
+  Number of items: 256678
+  Number of attributes: 236290
+  Number of labels: 5
+  
+  Holdout group: 2
+ ```
 The total training time of a `train_sink_path` document of 20MB should take approximately 1-3 minutes.  At the end of training, `model_sink_path` will appear as a non-human readable file in your directory. 
 
 ### Part 4: prediction
@@ -415,7 +418,11 @@ The total training time of a `train_sink_path` document of 20MB should take appr
 To predict, or restore case to the tokens in `test.tok` using the model you trained in **Part 3**, you will need to: 
 1. Extract features from `test.tok` and write them to `features_sink_path`
 2. Call your trained model from **Part 3** in the terminal by running--
-```% crfsuite tag -m model_sink_path predictions_sink_path```
+
+```{.bash}
+crfsuite tag -m model_sink_path predictions_sink_path
+```
+
 --where `predictions_sink_path` is the name of the file where you'd like the predicted tags and tokens to be written to
 3.  Use the predicted tags in `predictions_sink_path` to apply casing to casefolded tokens in `test.tok`
 4.  Write the case-restored tokens to a file that is formatted exactly like `test.tok`
