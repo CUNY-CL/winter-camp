@@ -9,7 +9,7 @@ from typing import List
 
 def _suffix_features(): 
 
-    pass 
+    ... 
 
 def extract(tokens: List[str]) -> List[List[str]]:
 
@@ -22,7 +22,7 @@ def extract(tokens: List[str]) -> List[List[str]]:
 
     Tip:  You may want to write a separate function that extracts some or all suffix features (e.g. 'def _suffix_features()' above) and then call it in this function.
     """
-    pass 
+    ... 
 
 
 # tokenizes and casefolds the sentence, 'Nelson Holdings International Ltd. dropped the most on a percentage basis , to 1,000 shares from 255,923.'
