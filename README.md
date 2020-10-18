@@ -12,7 +12,7 @@ In this exercise, you will learn about a simple but important NLP task called
 *true-casing* or *case restoration*, which allows one to
 
 -   restore missing capitalization in noisy user-generated text as is often
-    found in text messages (SMS) or posts on social media, or even
+    found in text messages (SMS) or posts on social media,
 -   add capitalization to the output of [machine
     translation](https://en.wikipedia.org/wiki/Machine_translation) and [speech
     recognition](https://en.wikipedia.org/wiki/Speech_recognition) to make them
@@ -31,8 +31,8 @@ and be somewhat comfortable using data structures like lists and dictionaries,
 calling functions, opening files, importing built-in modules, and reading
 technical documentation.
 
-You do not need to be familiar with the (conditional random field
-models)\[https://en.wikipedia.org/wiki/Conditional_random_field\] (Lafferty et
+You do not need to be familiar with the [conditional random field
+models](https://en.wikipedia.org/wiki/Conditional_random_field) (Lafferty et
 al. 2001), one of the technologies we use, but it may be useful to read a bit
 about this technology before beginning.
 
@@ -41,8 +41,6 @@ Center](https://www.gc.cuny.edu/Page-Elements/Academics-Research-Centers-Initiat
 master's students in computational linguistics often complete it as a
 supplemental exercise over winter break, after a semester of experience learning
 Python. (Hence the name "Winter Camp.")
-
-### Software requirements
 
 This tutorial assumes you have access to a UNIX-style command line interface:
 
@@ -71,42 +69,64 @@ technology is making informed predictions about the linguistic behaviors of rare
 words.
 
 Many [writing systems](https://en.wikipedia.org/wiki/Writing_system), including
-all of those derived from the Greek, Latin, and Cyrillic alphabets, distinguish
-between upper- and lower-case words. Such writing systems are said to be
-*bicameral*, and those which do not make these distinctions are said to be
-*unicameral*. While casing can carry important semantic information (compare
-*bush* vs. *Bush*), this distinction also can introduce further "sparsity" to
-our data. Or as Church (1995) puts it, do we **really** need to keep totally
-separate statistics for *hurricane* or *Hurricane*, or can we merge them?
+those derived from the Greek, Latin, and Cyrillic alphabets, distinguish between
+upper- and lower-case words. Such writing systems are said to be *bicameral*,
+and those which do not make these distinctions are said to be *unicameral*.
+While casing can carry important semantic information (compare *bush*
+vs. *Bush*), this distinction also can introduce further "sparsity" to our data.
+Or as Church (1995) puts it, do we **really** need to keep totally separate
+statistics for *hurricane* or *Hurricane*, or can we merge them?
 
 In most cases, speech and language processing systems, including machine
 translation and speech recognition engines, choose to ignore casing
 distinctions; they
-[`casefold`](https://docs.python.org/3/library/stdtypes.html#str.casefold) the
+[case-fold](https://docs.python.org/3/library/stdtypes.html#str.casefold) the
 data before training. While this is fine for many applications, it is often
 desirable to restore capitalization information afterwards, particularly if the
-text will be consumed by humans.
+text will be consumed by humans. Shugrina (2010) reports that users greatly
+prefer formatted transcripts over "raw" transcripts.
 
 Lita et al. (2003) introduce a task they call "true-casing". They use a simple
 machine learning model, a [*hidden Markov
-models*](https://en.wikipedia.org/wiki/Hidden_Markov_model), to predict the
-capitalization patterns of sentences, word by word. They obtain good overall
-accuracy (well about 90% accurate) when applying this method to English news
-text.
+model*](https://en.wikipedia.org/wiki/Hidden_Markov_model), to predict the
+capitalization patterns of sentences word by word. They obtain good overall
+accuracy (well above 90%) when applying this method to English news text.
 
-The exercise
-------------
+In this exercise, we will develop a variant of the Lita et al. model, with some
+small improvements. The exercise is divided into six parts.
 
-The exercise is divided into six parts.
+Structured classification
+-------------------------
+
+True-casing is a *structured classification* problem, because the casing of one
+word depends on nearby words. While one could possibly choose to ignore this
+dependency (as would be necessary with a simple [Naïve
+Bayes](https://en.wikipedia.org/wiki/Naive_Bayes_classifier) or [logistic
+regression](https://en.wikipedia.org/wiki/Logistic_regression) classifier),
+CRFSuite uses a first-order Markov model in which states represent casing tags,
+and the observations represent tokens. The best sequence of tags for a given
+sentence are computed using the [Viterbi
+algorithm](https://en.wikipedia.org/wiki/Viterbi_algorithm), which finds the
+best path by merging paths that share prefixes (e.g. the sequences "NNN" and
+"NNV" share the prefix "NN"). This merging calculates the probability of that
+prefix only once, as you can see in the figure below.
+
+<p align="center">
+<img width="460" height="300" src="https://user-images.githubusercontent.com/43279348/86036506-fcfbfa00-ba0b-11ea-819f-6a9f2bf86576.jpg">
+
+Caching the intermediate results of these prefix paths to speed up calculations
+is an example of [*dynamic
+programming*](https://en.wikipedia.org/wiki/Dynamic_programming). Without this
+trick, it would take far too long to score every possible path.
 
 Part 1: the paper
 -----------------
 
 Read [Lita et al. 2003](https://www.aclweb.org/anthology/P03-1020/), the study
 which introduces the true-casing task. If you encounter unfamiliar jargon, look
-it up, or ask a colleague or teacher. Here are some questions about the reading
-intended to promote comprehension. Feel free to get creative, even if you don't
-end up with the "right" answer.
+it up, or ask a colleague or instructor. Here are some questions about the
+reading intended to promote comprehension. Feel free to get creative, even if
+you don't end up with the "right" answer.
 
 1.  The paper lists some examples of when truecasing might be useful (automatic
     speech recognition, newspaper titles, etc.) Can you think of any other cases
@@ -129,7 +149,7 @@ end up with the "right" answer.
     observations." What are the states of that HMM? What are the observations?
     What are the transition probabilities?
 7.  The researchers use a trigram model to predict case. How might the results
-    have been different if they used a bigram or 4-gram model?
+    have been different if they used a bigram or four-gram model?
 8.  §2.3 discusses two possible approaches for dealing with unknown words. What
     are they? What are the advantages and disadvantages of each one?
 9.  For mixed-case tokens, there is no clear rule on which letters in the word
@@ -139,9 +159,10 @@ end up with the "right" answer.
 10. What data is this model trained on, and what are the benefits and
     disadvantages of these datasets?
 
-### Part 2: data and software
+Part 2: data and software
+-------------------------
 
-#### What to do
+### What to do
 
 1.  Obtain English data. Some tokenized English data from the Wall St. Journal
     (1989-1990) portion of the Penn Treebank is available
@@ -151,8 +172,8 @@ end up with the "right" answer.
     from the WMT News Crawl (2007) by executing the following from the command
     line.
 
-    ``` {.bash}
-    curl -compressed -C - http://data.statmt.org/news-crawl/en/news.2007.en.shuffled.deduped.gz -o "news.2007.gz"
+    ```bash
+    curl -C - http://data.statmt.org/news-crawl/en/news.2007.en.shuffled.deduped.gz -o "news.2007.gz"
     ```
 
 (Note that you can replace the "2007" above with any year from 2007 to 2019.) If
@@ -173,13 +194,13 @@ randomly splits the data into training (80%), development (10%), and testing
     -   Install Homebrew, if you have not already, by executing the following
         command in Terminal.app, and following the on-screen instructions.
 
-    ``` {.bash}
+    ```bash
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
     ```
 
     -   Then, to install CRFSuite, execute the following commands.
 
-    ``` {.bash}
+    ```bash
     brew tap brewsci/science
     brew install crfsuite
     ```
@@ -188,52 +209,277 @@ randomly splits the data into training (80%), development (10%), and testing
     program by executing the following commands in your system's terminal
     application.
 
-    ``` {.bash}
-    curl -O https://github.com/downloads/chokkan/crfsuite/crfsuite-0.12.tar.gz
-    tar -xvzf crfsuite-0.12.tar.gz
+    ```bash
+    curl -LO https://github.com/downloads/chokkan/crfsuite/crfsuite-0.12-x86_64.tar.gz
+    tar -xzf crfsuite-0.12-x86_64.tar.gz
     sudo mv crfsuite-0.12/bin/crfsuite /usr/local/bin
     ```
 
     These three commands download, decompress, and install the program into your
     path. Note that the last step may prompt you for your user password.
 
-#### Some background on CRFSuite
+Part 3: training
+----------------
 
-**Architecture**: True-casing is a *structured classification* problem, because
-the casing of one word depends on nearby words. While one could possibly choose
-to ignore this dependency (as would be necessary with a simple [Naïve
-Bayes](https://en.wikipedia.org/wiki/Naive_Bayes_classifier) or [logistic
-regression](https://en.wikipedia.org/wiki/Logistic_regression) classifier),
-CRFSuite uses a first-order Markov model in which states represent casing tags,
-and the observations represent tokens. The best sequence of tags for a given
-sentence are computed using the [Viterbi
-algorithm](https://en.wikipedia.org/wiki/Viterbi_algorithm), which finds the
-best path by merging paths that share prefixes (e.g. the two sequences "NNN" and
-"NNV" share the prefix "NN"). This merging calculates the probability of that
-prefix only once, as you can see in the figure below.
+In this step you will train the case-restoration model.
 
-```{=html}
-<p align="center">
+### Reading `case.py`
+
+One step during training requires us to tag tokens by their case. For instance,
+the sequence `He ate a prune wafer.` would be tagged as
+
+    He  TITLE    
+    ate LOWER 
+    a   LOWER 
+    prune   LOWER 
+    wafer   LOWER
+    .   DC 
+
+The `TITLE` tag refers to title-case, where only the first character is
+capitalized, and `DC` ("don't care") is used for punctuation and digit tokens,
+which are neither upper- nor lower-case. Special treatment is required for
+mixed-casetokens like `LaTeX`. At the token, these are labeled `MIXED`, but
+additional data is needed to keep track of the character-level patterns. For
+instance, we might use the following tags:
+
+    L   UPPER
+    a   LOWER
+    T   UPPER  
+    e   LOWER
+    X   UPPER
+
+To tag tokens and characters, you will use the functions of a provided Python
+module, [`case.py`](src/case.py). If you'd like to go through the exercises
+below in a Jupyter notebook or code editor, ensure that `case.py` is in your
+working directory (i.e., the same directory as your Jupyter notebook), and then
+execute `import case` before beginning. We will proceed to go function by
+function.
+
+-   `def get_tc(nunistr: str) -> Tuple[TokenCase, Pattern]: ...`
+
+1.  What is the argument to `get_tc`? What is the argument's type? What does
+    `get_tc` return?
+2.  What do you obtain when you pass the following strings as arguments to this
+    function: `"Mary"`, `"milk"`, `"LOL"', and`"LaTeX"\`?
+3.  What are the types of the first and second objects in the returned tuples?
+4.  Which of the strings above returns a list as the second object in the tuple?
+    What do the elements in that list tell us about the string?
+
+-   `def get_cc(nunichar: str) -> CharCase: ...`
+
+1.  What is the argument to `get_cc`? What is the argument's type? What does
+    `get_cc` return?
+2.  What do you obtain when you pass the following strings as arguments to this
+    function: `"L"`, `"a"`, `","`?
+3.  Which kinds of strings return the object `<CharCase.DC>`?
+4.  Read the documentation for
+    [`unicodedata`](https://docs.python.org/3/library/unicodedata.html), one of
+    the libraries used to implement this function. Why does the argument have to
+    be a single Unicode character?
+
+-   `def apply_cc(nunichar: str, cc: CharCase) -> str: ...`
+
+1.  What are the arguments to `apply_cc`? What is their types? What does
+    `apply_cc` return?
+2.  Apply `CharCase.UPPER` to the following strings: `"L"`, `"A"`. What do you
+    obtain?
+3.  Repeat the previous step but with `CharCase.LOWER`.
+4.  Write a snippet of code that iterates through the characters in 'latex' and
+    applies the CharCases needed to get the output, 'LaTeX'.
+
+-   `def apply_tc(nunistr: str, tc: TokenCase, pattern: Pattern = None) -> str:...`
+
+1.  What are the arguments to `apply_tc`? What are the arguments' types? What
+    does `apply_tc` return?
+2.  Apply `TokenCase.LOWER` to the following strings: `"Mary"`, `"milk"`,
+    `"LOL"', and`"LaTeX"\`. What do you obtain??
+3.  Repeat the previous step but with `TokenCase.TITLE`.
+4.  Repeat the previous step but with `Tokencase.UPPER`.
+
+### Feature extraction
+
+During both training and prediction, the model must be provided with features
+used to determine the casing pattern for each token. Minimally, these features
+should include:
+
+1.  The target token
+2.  The token to the left (or `__BOS__` if the token is sentence-initial)
+3.  The token to the right (or `__EOS__` if the token is sentence-final)
+4.  The conjunction of \#2 and \#3.
+
+Optionally, one may also provide features such as:
+
+1.  The token two to the left (or `__BOS__`)
+2.  The token two to the right (or `__EOS__`)
+3.  Prefixes and/or suffixes of the target token.
+
+CRFSuite requires feature files for both training and prediction. Each line
+consists of a single token's features, separated by a tab (`\t`) character, with
+a blank line between each sentence. Feature files for training should also
+include the tag itself as the first column in the feature. Thus, for the
+sentence
+
+`Nelson Holdings International Ltd. dropped the most on a percentage basis , to 1,000 shares from 255,923 .`
+
+the training feature file might look a bit like:
+
+    TITLE   t[0]=nelson     __BOS__ suf1=n  suf2=on suf3=son
+    TITLE   t[0]=holdings   t[-1]=nelson    t[+1]=international     t[-1]=nelson^t[+1]=international        suf1=s  suf2=gs            suf3=ngs
+    TITLE   t[0]=international      t[-1]=holdings  t[+1]=ltd.      t[-1]=holdings^t[+1]=ltd.       t[-2]=nelson    t[+2]=dropped      suf1=l   suf2=al suf3=nal
+    TITLE   t[0]=ltd.       t[-1]=international     t[+1]=dropped   t[-1]=international^t[+1]=dropped       t[-2]=holdings t[+2]=the   suf1=.   suf2=d. suf3=td.
+    LOWER   t[0]=dropped    t[-1]=ltd.      t[+1]=the       t[-1]=ltd.^t[+1]=the    t[-2]=international     t[+2]=most     suf1=d      suf2=ed  suf3=ped
+    LOWER   t[0]=the        t[-1]=dropped   t[+1]=most      t[-1]=dropped^t[+1]=most        t[-2]=ltd.      t[+2]=on       suf1=e      suf2=he
+    LOWER   t[0]=most       t[-1]=the       t[+1]=on        t[-1]=the^t[+1]=on      t[-2]=dropped   t[+2]=a suf1=t  suf2=st            suf3=ost
+    LOWER   t[0]=on t[-1]=most      t[+1]=a t[-1]=most^t[+1]=a      t[-2]=the       t[+2]=percentage        suf1=n
+    LOWER   t[0]=a  t[-1]=on        t[+1]=percentage        t[-1]=on^t[+1]=percentage       t[-2]=most      t[+2]=basis
+    LOWER   t[0]=percentage t[-1]=a t[+1]=basis     t[-1]=a^t[+1]=basis     t[-2]=on        t[+2]=, suf1=e  suf2=ge suf3=age
+    LOWER   t[0]=basis      t[-1]=percentage        t[+1]=, t[-1]=percentage^t[+1]=,        t[-2]=a t[+2]=to        suf1=s suf2=is     suf3=sis
+    DC      t[0]=,  t[-1]=basis     t[+1]=to        t[-1]=basis^t[+1]=to    t[-2]=percentage        t[+2]=1,000
+    LOWER   t[0]=to t[-1]=, t[+1]=1,000     t[-1]=,^t[+1]=1,000     t[-2]=basis     t[+2]=shares    suf1=o
+    DC      t[0]=1,000      t[-1]=to        t[+1]=shares    t[-1]=to^t[+1]=shares   t[-2]=, t[+2]=from      suf1=0  suf2=00            suf3=000
+    LOWER   t[0]=shares     t[-1]=1,000     t[+1]=from      t[-1]=1,000^t[+1]=from  t[-2]=to        t[+2]=255,923   suf1=s suf2=es     suf3=res
+    LOWER   t[0]=from       t[-1]=shares    t[+1]=255,923   t[-1]=shares^t[+1]=255,923      t[-2]=1,000     t[+2]=. suf1=m suf2=om     suf3=rom
+    DC      t[0]=255,923    t[-1]=from      t[+1]=. t[-1]=from^t[+1]=.      suf1=3  suf2=23 suf3=923
+    DC      t[0]=.  __EOS__
+
+and for prediction, one would simply omit the first column.
+
+#### What to do
+
+Write a function which, given a sentence, extracts a list of list of features
+for that sentence. It might have the following signature:
+
+`def extract(tokens: List[str]) -> List[List[str]]: ...`
+
+Then, write a script which uses this function to generate a feature file. To
+make this work, you will want to first split each sentence into tokens, call
+`extract` to obtain the features, then, for each token, print the tag and the
+features, separated by tab. Remember to also print a blank line between each
+sentence.
+
+#### Hints
+
+-   If you get stuck, you may want to "peak" at
+    [`features.py`](src/features.py), which contains a draft of the feature
+    extractor function itself.
+-   CRFSuite follows a convention whereby a `:` in a feature is interpreted as a
+    feature weight. Therefore we suggest that you replace `:` in any token with
+    another character such as `_`. If this is done consistently for all feature
+    files, this is extremely unlikely to result in a loss of information.
+
+### The mixed-case dictionary
+
+Mixed-case tokens like `McDonald's` and `LaTeX` all have different mixed-case
+patterns. Therefore, it is not enough to know that they are mixed: one also has
+to know which mixed-case pattern they follow. One can make a simplifying
+assumption that few if any mixed-case tokens vary in which mixed-case pattern
+they follow (or that such variation is mostly erroneous), and therefore one
+simply needs to store a table with the most-common pattern for each mixed-case
+token. This table is computed in two steps.
+
+1.  First, we count the frequency of each mixed-case pattern for each token.
+2.  Then, we eliminate all but the most frequent patterns for each token.
+
+For \#1, we use a dictionary whose keys are case-folded strings whose values are
+[`collections.Counter`](https://docs.python.org/3/library/collections.html#collections.Counter)
+objects containing the mixed-case form. For instance, this might resemble the
+following.
+
+```python
+{'iphone' : Counter{'iPhone': 11, 'IPhone': 5, 'iphone': 3}, ...}
 ```
-`<img width="460" height="300" src="https://user-images.githubusercontent.com/43279348/86036506-fcfbfa00-ba0b-11ea-819f-6a9f2bf86576.jpg">`{=html}
-```{=html}
-</p>
+
+Then, for step \#2, we create a simpler dictionary which contains just the most
+frequent mixed-case pattern as the value, like the following:
+
+```python
+{'iphone': 'iPhone', ...}
 ```
-Saving the intermediate results of these prefix paths to speed up calculations
-is an example of [*dynamic
-programming*](https://en.wikipedia.org/wiki/Dynamic_programming), without which
-it would take too long to score every possible path.
 
-### Part 3: training
+#### What to do
 
-**TODO**: apply feature extractor to generate data and call `crfsuite learn`.
-Also introduce `case.py` and talk about how it works.
+Write code which reads a tokenized file, constructs the second dictionary, and
+then writes it to disk as a [JSON
+file](https://docs.python.org/3/library/json.html) using
+[`json.dump`](https://docs.python.org/3/library/json.html). You may wish to
+combine this with the code you wrote in the previous step.
 
-### Part 4: prediction
+#### Hints
 
-**TODO**: call `crfsuite tag` and convert back to tokenized format.
+-   If you get stuck, you may want to carefully read the documentation for
+    [`collections.Counter`](https://docs.python.org/3/library/collections.html#collections.Counter)
+    and
+    [`collections.defaultdict`](https://docs.python.org/3/library/collections.html#collections.defaultdict),
+    particularly the [provided
+    examples](https://docs.python.org/3/library/collections.html#defaultdict-examples).
+-   You will need to create an empty dictionary before looping over the data.
+    This may look something like the following.
 
-### Part 5: evaluation
+```python
+mcdict = collections.defaultdict(collections.Counter)
+```
+
+Then, inside the loop(s), you can add a count to the dictionary as in the
+following snippet.
+
+```python
+mcdict[token.casefold()][token] += 1
+```
+
+-   If you are working with very large data sets, you may want to slightly
+    modifystep \#2 to exclude tokens that occur in mixed-case very infrequently
+    (e.g., less than twice) on the hypothesis that such tokens are typographical
+    errors.
+
+### CRF training
+
+You are now almost ready to train the model itself. To do this you will need
+
+-   a feature file (including tags) `train.features` for training data
+    `train.tok`, and
+-   a feature file (including tags) `dev.features` for development data
+    `dev.tok`,
+
+which can be created using the `extract` function described above.
+
+#### What to do
+
+At the command line, issue the following command to train the CRF model:
+
+```bash
+crfsuite learn \
+    -p feature.possible_states=1 \
+    -p feature.possible_transitions=1 \
+    -m model \
+    -e2 train.features dev.features
+```
+
+This will train the model and write the result (in a non-human-readable format)
+to the file `model`; training may take up to several minutes.
+
+Part 4: prediction
+------------------
+
+To predict, or restore case to the tokens in `test.tok` using the model you
+trained in **Part 3**, complete the following steps.
+
+1.  Extract features from `test.tok` and write them to `test.features`. This
+    file should **not** include case tags.
+2.  At the command line, issue the following command to apply the model you
+    trained in **Part 3**:
+
+```bash
+crfsuite tag -m model test.features > test.predictions
+```
+
+3.  Using the predicted tags in `test.predictions`, the mixed-cased dictionary,
+    and `case.py`'s `apply_*` functions, apply casing to case-folded tokens in
+    `test.tok`, and then write these restored-case tokens to a file formatted
+    similarly to `test.tok`, with one sentence per line and space between each
+    token.
+
+Part 5: evaluation
+------------------
 
 So, how good is your true-caser? There are many ways we can imagine measuring
 this. One could ask humans to rate the quality of the output casing, and one
@@ -246,14 +492,14 @@ will receive the correct casing.
 While it is possible to compute accuracy directly on the tags produced by
 `crfsuite`, this has the risk of slightly underestimating the actual accuracy.
 For instance, if the system tags a punctuation character as `UPPER`, this seems
-wrong, but it is harmless; token is inherently case-less and it doesn't matter
-what kind of tag it receives. When multiple predictions all give the right
-"downstream" answer, the model is said to exhibit *spurious ambiguity*; a good
-evaluation method should not penalize spurious ambiguity. In this case, one can
-avoid spurious ambiguity by evaluating not on the tags but on the tokenized
-data, after it has been converted back to that format.
+wrong, but it is harmless; punctuation tokens are inherently case-less and it
+doesn't matter what kind of tag it receives. When multiple predictions all give
+the right "downstream" answer, the model is said to exhibit *spurious
+ambiguity*; a good evaluation method should not penalize spurious ambiguity. In
+this case, one can avoid spurious ambiguity by evaluating not on the tags but on
+the tokenized data, after it has been converted back to that format.
 
-#### What to do
+### What to do
 
 Write a script called `evaluate.py`. It should take two command-line arguments:
 the path to the original "gold" tokenized and cased data, and the path to the
@@ -261,22 +507,27 @@ predicted data from the previous step. It should first initialize two counters,
 one for the number of correctly cased tokens, and one for the total number of
 tokens. Then, iterating over the two files, count the number of correctly cased
 tokens, the number of overall tokens. To compute accuracy, it should divide the
-former by the latter, round to 3-6 digits, and print the result. Your evaluation
-script should **not** read both files all at once, which will not work for very
-large files. Rather it should process the data line by line. For instance, if
-the gold data file handle is `gold` and the predicted data file handle is
-`pred`, part of your script might resemble the following.
+former by the latter, round to 3-6 digits, and print the result.
 
-``` {.python}
+### Hints
+
+-   Your evaluation script should **not** read both files all at once, which
+    will not work for very large files. Rather it should process the data line
+    by line. For instance, if the gold data file handle is `gold` and the
+    predicted data file handle is `pred`, part of your script might resemble the
+    following.
+
+```python
 for (gold_line, pred_line) in zip(gold, pred):
     gold_tokens = gold_line.split()
     pred_tokens = pred_line.split()
-    assert len(gold_tokens) == len(pred_tokens)
+    assert len(gold_tokens) == len(pred_tokens), "Mismatched lengths"
     for (gold_token, pred_token) in zip(gold_tokens, pred_tokens):
         ...
 ```
 
-### Part 6: style transfer
+Part 6: style transfer
+----------------------
 
 *Style transfer* refers to the use of machine learning to apply the "style" of a
 *reference* medium (e.g., texts, images, or videos) to to some other resource of
@@ -286,16 +537,16 @@ painting of da Vinci](https://genekogan.com/works/style-transfer/). In this
 section, you will use the true-casing model to transfer the "casing style" from
 some novel corpus to the data you used above.
 
-#### What to do
+### What to do
 
 1.  Obtain a reference corpus. A pre-tokenized corpus of tweets by
-    [@realDonaldTrump](https://twitter.com/realDonaldTrump) is available
+    [\@realDonaldTrump](https://twitter.com/realDonaldTrump) is available
     [here](http://wellformedness.com/courses/wintercamp/data/trump/).
     Alternatively, one can obtain data from some other source, such as the
     social media accounts of other famous personages (e.g.,
-    [@FINALLEVEL](https://twitter.com/finallevel),
-    [@dril](https://twitter.com/dril)) and then tokenize the data as described
-    in Part 2.
+    [\@dril](https://twitter.com/dril),
+    [\@FINALLEVEL](https://twitter.com/finallevel), and then tokenize the data
+    as described in Part 2.
 
 2.  Using the data from the previous step, training a casing model as in Part 3.
 
@@ -405,6 +656,10 @@ of the 18th International Conference on Machine Learning*, pages 282-289.
 Lita, L. V., Ittycheriah, A., Roukos, S. and Kambhatla, N. 2003. tRuEcasIng. In
 *Prooceedings of the 41st Annual Meeting of the Association for Computational
 Linguistics*, pages 152-159.
+
+Shugrina, M. 2010. Formatting time-aligned ASR transcripts for readability. In
+*Human Language Technologies: The 2010 Annual Conference of the North American
+Chapter of the Association for Computational Linguistics*, pages 198-206.
 
 Wang, W., Knight, K., and Marcu, D. 206. Capitalizing machine translation. In
 *Proceedings of the Human Language Technology Conference of the NAACL, Main
