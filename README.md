@@ -255,16 +255,6 @@ working directory (i.e., the same directory as your Jupyter notebook), and then
 execute `import case` before beginning. We will proceed to go function by
 function.
 
--   `def get_tc(nunistr: str) -> Tuple[TokenCase, Pattern]: ...`
-
-1.  What is the argument to `get_tc`? What is the argument's type? What does
-    `get_tc` return?
-2.  What do you obtain when you pass the following strings as arguments to this
-    function: `"Mary"`, `"milk"`, `"LOL"', and`"LaTeX"\`?
-3.  What are the types of the first and second objects in the returned tuples?
-4.  Which of the strings above returns a list as the second object in the tuple?
-    What do the elements in that list tell us about the string?
-
 -   `def get_cc(nunichar: str) -> CharCase: ...`
 
 1.  What is the argument to `get_cc`? What is the argument's type? What does
@@ -277,6 +267,16 @@ function.
     the libraries used to implement this function. Why does the argument have to
     be a single Unicode character?
 
+-   `def get_tc(nunistr: str) -> Tuple[TokenCase, Pattern]: ...`
+
+1.  What is the argument to `get_tc`? What is the argument's type? What does
+    `get_tc` return?
+2.  What do you obtain when you pass the following strings as arguments to this
+    function: `"Mary"`, `"milk"`, `"LOL"', and`"LaTeX"\`?
+3.  What are the types of the first and second objects in the returned tuples?
+4.  Which of the strings above returns a list as the second object in the tuple?
+    What do the elements in that list tell us about the string?
+
 -   `def apply_cc(nunichar: str, cc: CharCase) -> str: ...`
 
 1.  What are the arguments to `apply_cc`? What is their types? What does
@@ -284,17 +284,18 @@ function.
 2.  Apply `CharCase.UPPER` to the following strings: `"L"`, `"A"`. What do you
     obtain?
 3.  Repeat the previous step but with `CharCase.LOWER`.
-4.  Write a snippet of code that iterates through the characters in 'latex' and
-    applies the CharCases needed to get the output, 'LaTeX'.
+4.  Read the tests in [`case_test.py`](src/case_test.py) to see how they use
+    `apply_cc`.
 
 -   `def apply_tc(nunistr: str, tc: TokenCase, pattern: Pattern = None) -> str:...`
 
 1.  What are the arguments to `apply_tc`? What are the arguments' types? What
     does `apply_tc` return?
 2.  Apply `TokenCase.LOWER` to the following strings: `"Mary"`, `"milk"`,
-    `"LOL"', and`"LaTeX"\`. What do you obtain??
-3.  Repeat the previous step but with `TokenCase.TITLE`.
-4.  Repeat the previous step but with `Tokencase.UPPER`.
+    `"LOL"', and `"LaTeX"`. What do you obtain??
+3.  Repeat the previous step but with `TokenCase.TITLE` and `TokenCase.UPPER`.
+4.  Read the tests in [`case_test.py`](src/case_test.py) to see how they use
+    `apply_tc`.
 
 ### Feature extraction
 
@@ -359,7 +360,7 @@ sentence.
 
 #### Hints
 
--   If you get stuck, you may want to "peak" at
+-   If you get stuck, you may want to "peek" at
     [`features.py`](src/features.py), which contains a draft of the feature
     extractor function itself.
 -   CRFSuite follows a convention whereby a `:` in a feature is interpreted as a
@@ -370,17 +371,19 @@ sentence.
 ### The mixed-case dictionary
 
 Mixed-case tokens like `McDonald's` and `LaTeX` all have different mixed-case
-patterns. Therefore, it is not enough to know that they are mixed: one also has
-to know which mixed-case pattern they follow. One can make a simplifying
-assumption that few if any mixed-case tokens vary in which mixed-case pattern
-they follow (or that such variation is mostly erroneous), and therefore one
-simply needs to store a table with the most-common pattern for each mixed-case
-token. This table is computed in two steps.
+patterns. It is not enough to know that they are mixed: one also has to know
+which mixed-case pattern they follow. One can make a simplifying assumption
+that few if any mixed-case tokens vary in which mixed-case pattern they follow
+(or that such variation is mostly erroneous), and therefore one simply needs to
+store a table with the most-common pattern for each mixed-case token, which is
+used to produce the proper form of a token tagged as mixed-case. This table is
+computed in two steps.
 
-1.  First, we count the frequency of each mixed-case pattern for each token.
-2.  Then, we eliminate all but the most frequent patterns for each token.
+1.  First, count the frequency of each mixed-case pattern for each token.
+2.  Then, select only the most frequent mixed-case pattern for each token.
 
-For \#1, we use a dictionary whose keys are case-folded strings whose values are
+For step \#1, we use a dictionary whose keys are case-folded strings whose
+values are
 [`collections.Counter`](https://docs.python.org/3/library/collections.html#collections.Counter)
 objects containing the mixed-case form. For instance, this might resemble the
 following.
