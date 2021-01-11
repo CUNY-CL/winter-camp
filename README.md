@@ -597,7 +597,7 @@ et al. 2006.
     output files, as well as the model order hyperparameters), use the built-in
     [`argparse`](https://docs.python.org/3/library/argparse.html) module to
     parse command-line flags.
-
+    
 2.  Convert your implementation to a [Python
     package](https://packaging.python.org/) which can be installed using `pip`.
     If you are also doing stretch goal \#1, you may want to make the trainer and
@@ -608,9 +608,11 @@ et al. 2006.
     [`python-crfsuite`](https://github.com/scrapinghub/python-crfsuite) package,
     available from `pip`, which exposes the CRFSuite internals directly to
     Python, without the need to call the `crfsuite` binary.
+    
 3.  Train and evaluate a model on a language other than English (though make
     sure the writing system makes case distinctions---not all do); even French
     and German both have rather different casing rules.
+    
 4.  Train, evaluate, and distribute a **gigantic** case restoration model using
     a megacorpus such as
 
@@ -634,6 +636,7 @@ et al. 2006.
 5.  Above we provided a relatively simple feature extraction function. Would
     different features do better? Add, remove, or combine features, retrain your
     model, and compare the results the provided feature function.
+    
 6.  Alternatively, you can try a different type of model altogether using the
     [`perceptronix`](https://github.com/kylebgorman/perceptronix/) library,
     which provides a fast C++-based backend for training linear sequence models
@@ -641,6 +644,10 @@ et al. 2006.
     `case.py` and the `perceptronix.SparseDenseMultinomialSequentialModel`
     class, build a discriminative case restoration engine and compare the
     results to the CRF model.
+    
+7.  Section 2.3 of Lita et al. proposes an alternative method for handling rare
+    words. Re-read that section and implement their proposal, then compare it to
+    your earlier implementation.
 
 References
 ----------
