@@ -548,7 +548,7 @@ some novel corpus to the data you used above.
     Alternatively, one can obtain data from some other source, such as the
     social media accounts of other famous personages (e.g.,
     [\@dril](https://twitter.com/dril),
-    [\@FINALLEVEL](https://twitter.com/finallevel), and then tokenize the data
+    [\@FINALLEVEL](https://twitter.com/finallevel)), and then tokenize the data
     as described in Part 2.
 
 2.  Using the data from the previous step, training a casing model as in Part 3.
