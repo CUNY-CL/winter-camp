@@ -1,5 +1,5 @@
-True-casing with a hidden Markov model
-======================================
+True-casing with a tagger model
+===============================
 
 [Kyle Gorman](kgorman@gc.cuny.edu), [M. Elizabeth
 Garza](garza.elizabeth9@gmail.com), and [Emily
