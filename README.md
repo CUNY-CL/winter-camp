@@ -652,7 +652,7 @@ et al. 2006.
 References
 ----------
 
-Chelba, C. and Acero, A.. 2006. Adaptation of maximum entropy capitalizer:
+Chelba, C. and Acero, A. 2006. Adaptation of maximum entropy capitalizer:
 little data can help a lot. *Computer Speech and Language* 20(4): 382-39.
 
 Church, K. W. 1995. One term or two? In *Proceedings of the 18th Annual
