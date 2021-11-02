@@ -105,8 +105,8 @@ Bayes](https://en.wikipedia.org/wiki/Naive_Bayes_classifier) or [logistic
 regression](https://en.wikipedia.org/wiki/Logistic_regression) classifier),
 CRFSuite uses a first-order Markov model in which states represent casing tags,
 and the observations represent tokens. The best sequence of tags for a given
-sentence are computed using the [Viterbi
-algorithm](https://en.wikipedia.org/wiki/Viterbi_algorithm), which finds the
+sentence are computed using the [*Viterbi
+algorithm*](https://en.wikipedia.org/wiki/Viterbi_algorithm), which finds the
 best path by merging paths that share prefixes (e.g. the sequences "NNN" and
 "NNV" share the prefix "NN"). This merging calculates the probability of that
 prefix only once, as you can see in the figure below.
