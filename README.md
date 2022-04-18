@@ -1,9 +1,9 @@
 True-casing with a tagger model
 ===============================
 
-[Kyle Gorman](kgorman@gc.cuny.edu), [M. Elizabeth
-Garza](garza.elizabeth9@gmail.com), and [Emily
-Campbell](ecampbell4@gradcenter.cuny.edu)
+[Kyle Gorman](mailto:kgorman@gc.cuny.edu), [M. Elizabeth
+Garza](mailto:garza.elizabeth9@gmail.com), and [Emily
+Campbell](mailto:ecampbell4@gradcenter.cuny.edu)
 
 Learning goals
 --------------
