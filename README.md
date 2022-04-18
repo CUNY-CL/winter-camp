@@ -26,8 +26,8 @@ read and writing text files, and using the command line.
 Prerequisites
 -------------
 
-You should have a working familiarity with [Python 3](https://www.python.org/)
-and be somewhat comfortable using data structures like lists and dictionaries,
+You should have a working familiarity with [Python](https://www.python.org/)
+and be comfortable using data structures like lists and dictionaries,
 calling functions, opening files, importing built-in modules, and reading
 technical documentation.
 
@@ -44,10 +44,10 @@ Python. (Hence the name "Winter Camp.")
 
 This tutorial assumes you have access to a UNIX-style command line interface:
 
--   On Windows 10, you access a command line using [Windows Subsystem for
-    Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10); the
+-   On Windows 10 onward, you access a command line using [Windows Subsystem
+    for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10); the
     Ubuntu "distro" (distribution) is particularly easy to use.
--   On Mac OS X, you can access the command line interface by opening
+-   On MacOS, you can access the command line interface by opening
     Terminal.app.
 
 It also assumes that you have Python 3.6 or better installed. To test, run
