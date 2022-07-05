@@ -33,7 +33,8 @@ def extract(tokens: List[str]) -> List[List[str]]:
             f"t[+1]={tokens[i+1]}"
         ])
 
-        line.extend([f"suf{i}={get_suffix(token, i)}" for i in range(1, 4)])
+        end = max(min(len(token), 3+1), 2)
+        line.extend([f"suf{i}={get_suffix(token, i)}" for i in range(1, end)])
         output.append(line)
 
     return output
@@ -80,7 +81,7 @@ def process_dataset(dataset_fp: str,
     datasets = {
         'train': lines[:train_idx],
         'test': lines[train_idx:test_idx],
-        'val': lines[test_idx:]
+        'dev': lines[test_idx:]
     }
 
     if not os.path.isdir(dataset_dir):
