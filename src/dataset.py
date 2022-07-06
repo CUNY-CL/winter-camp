@@ -61,7 +61,7 @@ def process_dataset(dataset_fp: str,
                     dataset_dir: str,
                     train_pct: float = 0.8,
                     test_pct: float = 0.1,
-                    val_pct: float = 0.1):
+                    val_pct: float = 0.1) -> Dict[str, Dict[str, str]]:
 
     assert train_pct + test_pct + val_pct == 1
 
@@ -86,6 +86,8 @@ def process_dataset(dataset_fp: str,
 
     if not os.path.isdir(dataset_dir):
         os.mkdir(dataset_dir)
+
+    filepaths = dict()
 
     for name, lines in datasets.items():
         tok_fp = os.path.join(dataset_dir, name + ".tok")
@@ -113,6 +115,13 @@ def process_dataset(dataset_fp: str,
         feat_fp = os.path.join(dataset_dir, name + ".features")
         with open(feat_fp, "w") as outfile:
             outfile.write("\n".join(output))
+
+        filepaths[name] = {
+            'tokens': tok_fp,
+            'features': feat_fp
+        }
+
+    return filepaths
 
 
 fp = "/Users/degan/Downloads/news.2007.en.shuffled.deduped"
