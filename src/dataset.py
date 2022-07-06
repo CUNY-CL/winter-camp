@@ -120,8 +120,6 @@ def process_dataset(dataset_fp: str,
         lines = infile.readlines()
 
     print(f"done! ✅\nFound {len(lines)} examples.")
-    print("🚨🚨🚨🚨 USING 1000 LINES 🚨🚨🚨🚨")
-    lines = lines[:100]
 
     shuffle(lines)
     features, labels = [], []
