@@ -41,15 +41,15 @@ def extract_feature_dict(tokens: List[str]) -> Tuple[SentenceFeatures, SentenceL
 
         labels.append(str(tc))
 
-        line["t[0]"] = token
+        line["t[0]"] = token.lower()
 
         if tokens[i-1] != '__BOS__':
-            line['t[-1]'] = tokens[i-1]
+            line['t[-1]'] = tokens[i-1].lower()
         else:
             line['BOS'] = True
 
         if tokens[i+1] != '__EOS__':
-            line['t[+1]'] = tokens[i+1]
+            line['t[+1]'] = tokens[i+1].lower()
         else:
             line['EOS'] = True
 
@@ -124,8 +124,6 @@ def process_lines(lines: List[str],
 
         features.append(f)
         labels.append(l)
-
-    features, labels = process_lines(lines)
 
     train_idx = int(len(lines) * train_pct)
     test_idx = train_idx + int(len(lines) * test_pct)
