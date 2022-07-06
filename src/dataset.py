@@ -1,27 +1,78 @@
-from nltk import word_tokenize
-from random import shuffle, seed
 import os
-from typing import List, Dict
-from case import get_tc, TokenCase
 from collections import Counter
+from random import shuffle, seed
+from typing import List, Dict, Tuple, Union
+
 import pandas as pd
+from case import get_tc, TokenCase
+from nltk import word_tokenize
 from tqdm import tqdm
 
 seed(42)
+
+SentenceFeature = Dict[str, Union[str, bool]]
+SentenceFeatures = List[SentenceFeature]
+
+SentenceLabel = str
+SentenceLabels = List[SentenceLabel]
+
+Dataset = Dict[str, Union[List[SentenceFeatures], List[SentenceLabels]]]
 
 
 def get_suffix(text: str, n: int) -> str:
     return text[-n:]
 
 
-def extract(tokens: List[str]) -> List[List[str]]:
+def extract_feature_dict(tokens: List[str]) -> Tuple[SentenceFeatures, SentenceLabels]:
 
-    output = []
     tokens = ["__BOS__"] + tokens + ["__EOS__"]
+
+    features, labels = [], []
+
     for i, token in enumerate(tokens[1:-1]):
         # CRFSuite follows a convention whereby a : in a feature is interpreted as a feature weight.
         # Therefore we suggest that you replace : in any token with another character such as _.
         token = token.replace(":", "_")
+
+        i = i + 1
+
+        line = dict()
+        tc, pattern = get_tc(token)
+
+        labels.append(str(tc))
+
+        line["t[0]"] = token
+
+        if tokens[i-1] != '__BOS__':
+            line['t[-1]'] = tokens[i-1]
+        else:
+            line['BOS'] = True
+
+        if tokens[i+1] != '__EOS__':
+            line['t[+1]'] = tokens[i+1]
+        else:
+            line['EOS'] = True
+
+        end = max(min(len(token), 3 + 1), 2)
+        [line.update({f"suf{i}": get_suffix(token, i)}) for i in range(1, end)]
+        features.append(line)
+
+    assert len(features) == len(labels)
+
+    return features, labels
+
+
+def extract(tokens: List[str]) -> List[List[str]]:
+
+    output = []
+    tokens = ["__BOS__"] + tokens + ["__EOS__"]
+
+    for i, token in enumerate(tokens[1:-1]):
+        # CRFSuite follows a convention whereby a : in a feature is interpreted as a feature weight.
+        # Therefore we suggest that you replace : in any token with another character such as _.
+        token = token.replace(":", "_")
+
+        i = i + 1
 
         line = []
         tc, pattern = get_tc(token)
@@ -29,8 +80,8 @@ def extract(tokens: List[str]) -> List[List[str]]:
         line.extend([
             str(tc),
             f"t[0]={token}",
-            f"t[-1]={tokens[i-1]}",
-            f"t[+1]={tokens[i+1]}"
+            f"t[-1]={tokens[i-1]}" if tokens[i-1] != "__BOS__" else "__BOS__",
+            f"t[+1]={tokens[i+1]}" if tokens[i+1] != "__EOS__" else "__EOS__"
         ])
 
         end = max(min(len(token), 3+1), 2)
@@ -58,10 +109,9 @@ def get_most_common_mix(tokens: List[str]) -> Dict[str, str]:
 
 
 def process_dataset(dataset_fp: str,
-                    dataset_dir: str,
                     train_pct: float = 0.8,
                     test_pct: float = 0.1,
-                    val_pct: float = 0.1) -> Dict[str, Dict[str, str]]:
+                    val_pct: float = 0.1) -> Dict[str, Dataset]:
 
     assert train_pct + test_pct + val_pct == 1
 
@@ -69,62 +119,62 @@ def process_dataset(dataset_fp: str,
     with open(dataset_fp, 'r') as infile:
         lines = infile.readlines()
 
+    print(f"done! ✅\nFound {len(lines)} examples.")
     print("🚨🚨🚨🚨 USING 1000 LINES 🚨🚨🚨🚨")
     lines = lines[:100]
 
-    print(f"done! ✅\nFound {len(lines)} examples.")
-
     shuffle(lines)
+    features, labels = [], []
+
+    for line in tqdm(lines):
+        tokens = word_tokenize(line)
+        f, l = extract_feature_dict(tokens)
+
+        features.append(f)
+        labels.append(l)
+
     train_idx = int(len(lines) * train_pct)
     test_idx  = train_idx + int(len(lines) * test_pct)
 
     datasets = {
-        'train': lines[:train_idx],
-        'test': lines[train_idx:test_idx],
-        'dev': lines[test_idx:]
+        'train': {
+            'features': features[:train_idx],
+            'labels': labels[:train_idx]
+        },
+
+        'test': {
+            'features': features[train_idx:test_idx],
+            'labels': labels[train_idx:test_idx]
+        },
+
+        'dev': {
+            'features': features[test_idx:],
+            'labels': labels[test_idx:]
+        }
     }
+
+    return datasets
+
+
+def datasets_to_files(datasets: Dict[str, Dataset], dataset_dir: str):
 
     if not os.path.isdir(dataset_dir):
         os.mkdir(dataset_dir)
 
-    filepaths = dict()
+    for name, dataset in datasets.items():
+        features = dataset['features']
+        labels = dataset['labels']
 
-    for name, lines in datasets.items():
-        tok_fp = os.path.join(dataset_dir, name + ".tok")
-
-        print(f"Saving {len(lines)} to {tok_fp}...", end='')
-
-        with open(tok_fp, 'w') as outfile:
-            outfile.write("\n".join(lines))
-
-        print("done! ✅\nPreparing features...", end='')
         output = []
+        for feature, label in zip(features, labels):
 
-        # test.features file should NOT include case tags
-        # Case tags = first "column" of features therefore by starting 1 we skip them
-        if name == 'test':
-            start_idx = 1
-        else:
-            start_idx = 0
+            outs = []
+            for ff, ll in zip(feature, label):
+                line = ll + "\t" + "\t".join([f"{k}={v}" for k, v in ff.items()])
+                outs.append(line)
 
-        for line in tqdm(lines):
-            tokens = word_tokenize(line)
-            features = extract(tokens)
-            output.append("\t".join([" ".join(f) for f in features[start_idx:]]))
+            output.append("\n".join(outs))
 
-        feat_fp = os.path.join(dataset_dir, name + ".features")
-        with open(feat_fp, "w") as outfile:
-            outfile.write("\n".join(output))
-
-        filepaths[name] = {
-            'tokens': tok_fp,
-            'features': feat_fp
-        }
-
-    return filepaths
-
-
-fp = "/Users/degan/Downloads/news.2007.en.shuffled.deduped"
-print(process_dataset(fp, '/Users/degan/datasets/winter_camp'))
-
-
+        fp = os.path.join(dataset_dir, name + ".features")
+        with open(fp, 'w') as outfile:
+            outfile.write("\n\n".join(output))
