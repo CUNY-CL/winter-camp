@@ -108,18 +108,12 @@ def get_most_common_mix(tokens: List[str]) -> Dict[str, str]:
     return answer
 
 
-def process_dataset(dataset_fp: str,
-                    train_pct: float = 0.8,
-                    test_pct: float = 0.1,
-                    val_pct: float = 0.1) -> Dict[str, Dataset]:
+def process_lines(lines: List[str],
+                  train_pct: float = 0.8,
+                  test_pct: float = 0.1,
+                  val_pct: float = 0.1) -> Dict[str, Dataset]:
 
     assert train_pct + test_pct + val_pct == 1
-
-    print(f"Loading dataset from {dataset_fp}...", end='')
-    with open(dataset_fp, 'r') as infile:
-        lines = infile.readlines()
-
-    print(f"done! ✅\nFound {len(lines)} examples.")
 
     shuffle(lines)
     features, labels = [], []
@@ -131,8 +125,10 @@ def process_dataset(dataset_fp: str,
         features.append(f)
         labels.append(l)
 
+    features, labels = process_lines(lines)
+
     train_idx = int(len(lines) * train_pct)
-    test_idx  = train_idx + int(len(lines) * test_pct)
+    test_idx = train_idx + int(len(lines) * test_pct)
 
     datasets = {
         'train': {
@@ -151,6 +147,23 @@ def process_dataset(dataset_fp: str,
         }
     }
 
+    return datasets
+
+
+def process_dataset(dataset_fp: str,
+                    train_pct: float = 0.8,
+                    test_pct: float = 0.1,
+                    val_pct: float = 0.1) -> Dict[str, Dataset]:
+
+    assert train_pct + test_pct + val_pct == 1
+
+    print(f"Loading dataset from {dataset_fp}...", end='')
+    with open(dataset_fp, 'r') as infile:
+        lines = infile.readlines()
+
+    print(f"done! ✅\nFound {len(lines)} examples.")
+
+    datasets = process_lines(lines)
     return datasets
 
 

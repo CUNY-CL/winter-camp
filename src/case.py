@@ -9,6 +9,7 @@ import enum
 import unicodedata
 
 from typing import Dict, List, Optional, Tuple
+from .tweets import is_url
 
 
 # Casing features at the the Unicode character level.
@@ -128,8 +129,11 @@ def get_tc(nunistr: str) -> Tuple[TokenCase, Pattern]:
         return (TokenCase.TITLE, None)
     elif nunistr.isupper():
         return (TokenCase.UPPER, None)
+
     pattern = [get_cc(nunichr) for nunichr in nunistr]
-    if all(tc == CharCase.DC for tc in pattern):
+
+    # @degan: Updated DC to include URLs
+    if all(tc == CharCase.DC for tc in pattern) or is_url(nunistr):
         return (TokenCase.DC, None)
     return (TokenCase.MIXED, pattern)
 
