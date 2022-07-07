@@ -7,14 +7,18 @@ to an arbitrary Unicode string)."""
 
 import enum
 import unicodedata
-
 from typing import Dict, List, Optional, Tuple
-from .tweets import is_url
+from urllib.parse import urlparse
 
+
+def is_url(text: str):
+    try:
+        result = urlparse(text)
+        return all([result.scheme, result.netloc])
+    except:
+        return False
 
 # Casing features at the the Unicode character level.
-
-
 @enum.unique
 class CharCase(enum.IntEnum):
     """Enum for the three character classes."""
@@ -172,3 +176,4 @@ def apply_tc(nunistr: str, tc: TokenCase, pattern: Pattern = None) -> str:
         assert len(nunistr) == len(pattern)
         return "".join(apply_cc(ch, cc) for (ch, cc) in zip(nunistr, pattern))
     raise UnknownTokenCaseError(tc)
+

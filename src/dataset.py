@@ -16,7 +16,7 @@ SentenceFeatures = List[SentenceFeature]
 SentenceLabel = str
 SentenceLabels = List[SentenceLabel]
 
-Dataset = Dict[str, Union[List[SentenceFeatures], List[SentenceLabels]]]
+Dataset = Dict[str, Union[List[SentenceFeatures], List[SentenceLabels], List[str]]]
 
 
 def get_suffix(text: str, n: int) -> str:
@@ -131,17 +131,20 @@ def process_lines(lines: List[str],
     datasets = {
         'train': {
             'features': features[:train_idx],
-            'labels': labels[:train_idx]
+            'labels': labels[:train_idx],
+            'lines': lines[:train_idx]
         },
 
         'test': {
             'features': features[train_idx:test_idx],
-            'labels': labels[train_idx:test_idx]
+            'labels': labels[train_idx:test_idx],
+            'lines': lines[train_idx:test_idx]
         },
 
         'dev': {
             'features': features[test_idx:],
-            'labels': labels[test_idx:]
+            'labels': labels[test_idx:],
+            'lines': lines[test_idx:]
         }
     }
 
@@ -187,3 +190,7 @@ def datasets_to_files(datasets: Dict[str, Dataset], dataset_dir: str):
         fp = os.path.join(dataset_dir, name + ".features")
         with open(fp, 'w') as outfile:
             outfile.write("\n\n".join(output))
+
+        fp = os.path.join(dataset_dir, name + ".tok")
+        with open(fp, 'w') as outfile:
+            outfile.write("\n".join(dataset['lines']))
