@@ -2,7 +2,7 @@
 
 import unittest
 
-import case
+import caseify.case as case
 
 
 class CaseTests(unittest.TestCase):

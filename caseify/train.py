@@ -4,8 +4,8 @@ import pickle
 import subprocess
 
 import sklearn_crfsuite
-from dataset import process_dataset, datasets_to_files, word_tokenize, extract_feature_dict
-from case import apply_tc, TokenCase, Pattern
+from caseify.dataset import process_dataset, datasets_to_files, word_tokenize, extract_feature_dict
+from caseify.case import apply_tc, TokenCase, Pattern
 from sklearn_crfsuite import metrics as crf_metrics
 from typing import List, Tuple
 
