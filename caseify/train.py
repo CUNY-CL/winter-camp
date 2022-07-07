@@ -1,13 +1,16 @@
 import argparse
+import json
 import os
 import pickle
 import subprocess
+from typing import List, Tuple
 
 import sklearn_crfsuite
-from caseify.dataset import process_dataset, datasets_to_files, word_tokenize, extract_feature_dict
-from caseify.case import apply_tc, TokenCase, Pattern
+from random import randint
 from sklearn_crfsuite import metrics as crf_metrics
-from typing import List, Tuple
+
+from caseify.case import apply_tc, TokenCase, Pattern
+from caseify.dataset import process_dataset, save_datasets_crf_feat_format, word_tokenize, extract_feature_dict
 
 
 def train_model(train: tuple, dev: tuple):
@@ -28,39 +31,41 @@ def train_model(train: tuple, dev: tuple):
     #                shell=sys.executable)
 
 
-def predict(model_fp: str, test_feat_fp: str, pred_fp: str):
-    subprocess.run(f"crfsuite tag -m {model_fp} {test_feat_fp} > {pred_fp}")
+# def predict(model_fp: str, test_feat_fp: str, pred_fp: str):
+#     subprocess.run(f"crfsuite tag -m {model_fp} {test_feat_fp} > {pred_fp}")
 
 
 def run_train_job(dataset_fp: str,
-                  dataset_dir: str,
-                  model_fp: str = 'model.pkl'):
+                  dataset_dir: str):
+    """
+    Train a CRF model
+
+    Args:
+        dataset_fp: filepath to dataset
+        dataset_dir: directory to save all job artifacts to
+    """
 
     print("Step #1 -- Processing dataset")
-    datasets = process_dataset(dataset_fp=dataset_fp)
-    datasets_to_files(datasets, dataset_dir)
+    datasets, mixed_tokens = process_dataset(dataset_fp=dataset_fp)
+
+    save_datasets_crf_feat_format(datasets, dataset_dir)
+
+    mt_fp = os.path.join(dataset_dir, "mixed_tokens.json")
+    with open(mt_fp, 'w') as outfile:
+        json.dump(mixed_tokens, outfile)
 
     print("Step #2 -- Training model")
     crf = train_model(train=(datasets['train']['features'], datasets['train']['labels']),
                       dev=(datasets['dev']['features'], datasets['dev']['labels']))
 
-    model_fp = os.path.join(dataset_dir, model_fp)
+    model_fp = os.path.join(dataset_dir, "model.pkl")
     print(f"Step #3 -- Saving model to {model_fp}")
     with open(model_fp, 'wb') as outfile:
         pickle.dump(crf, outfile)
 
-    # TODO save model
     print("Step #4 -- Generate predictions")
-    y_pred = crf.predict(datasets['test']['features'])
-    y_gold = datasets['test']['labels']
-
-    print("Step #5 -- Compute metrics")
-    labels = list(crf.classes_)
-    print("Flat accuracy:", crf_metrics.flat_accuracy_score(y_gold, y_pred))
-    print(crf_metrics.flat_classification_report(y_gold, y_pred, labels=labels))
-
+    y_pred  = crf.predict(datasets['test']['features'])
     pred_fp = os.path.join(dataset_dir, "test.predictions")
-    print(y_pred[:5])
     output = ""
     for line in y_pred:
         output += "\n".join(line) + '\n\n'
@@ -68,17 +73,24 @@ def run_train_job(dataset_fp: str,
     with open(pred_fp, 'w') as outfile:
         outfile.write(output)
 
-    idx = 10
-    sentences = datasets['test']['lines'][:idx]
+    print("Step #5 -- Compute metrics")
+
+    y_gold = datasets['test']['labels']
+    labels = list(crf.classes_)
+
+    print("Flat accuracy:", crf_metrics.flat_accuracy_score(y_gold, y_pred))
+    print(crf_metrics.flat_classification_report(y_gold, y_pred, labels=labels))
+
+    print("Example reconstructed sentences:")
+
+    n_examples = 10
+    test_sents = datasets['test']['lines']
+    rando_idxs = [randint(0, len(test_sents)) for _ in range(n_examples)]
+    sentences  = [test_sents[i] for i in rando_idxs]
 
     case_corrected = case_correct_sentence(crf, sentences)
     for corrected, actual in zip(case_corrected, sentences):
         print(f"True:{actual}\nPred:{corrected}\n\n")
-
-
-def apply_tc_sentence(tokens: List[str], case_patterns: List[Tuple[TokenCase, Pattern]]):
-    assert len(case_patterns) == len(tokens), f"{len(case_patterns)}, {len(tokens)}"
-    return " ".join([apply_tc(token, getattr(TokenCase, tc), None) for token, tc in zip(tokens, case_patterns)])
 
 
 def case_correct_sentence(model, sentences: List[str]) -> List[str]:

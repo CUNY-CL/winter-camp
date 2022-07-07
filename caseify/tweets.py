@@ -8,10 +8,21 @@ from caseify.train import run_train_job
 
 
 def _get_header(bearer_token: str):
+    """ Helper function to construct headers for Twitter API call """
     return {"Authorization": "Bearer {}".format(bearer_token)}
 
 
 def get_twitter_id(bearer_token: str, username: str) -> str:
+    """
+    Get TwitterID for a username
+
+    Args:
+        bearer_token: Twitter API user's Bearer Token
+        username: username of Twitter user you want to get tweets for
+
+    Returns:
+        TwitterID of username if found otherwise will raise an exception
+    """
     headers = _get_header(bearer_token)
     req = requests.get(f"https://api.twitter.com/2/users/by/username/{username}", headers=headers)
     if req.ok:
@@ -21,6 +32,17 @@ def get_twitter_id(bearer_token: str, username: str) -> str:
 
 
 def get_user_tweets(bearer_token: str, username: str, exclude_retweets: bool = True) -> List[dict]:
+    """
+    Get all of a user's tweets
+
+    Args:
+        bearer_token: Twitter API user's Bearer Token
+        username: username of Twitter user you want to get tweets for
+        exclude_retweets: if True, will exclude a user's retweets from tweets
+
+    Returns:
+        List of tweets as returned from Twitter
+    """
 
     print(f"Looking up TwitterID for {username}...", end='')
     twitter_id = get_twitter_id(bearer_token, username)
@@ -77,7 +99,14 @@ def get_user_tweets(bearer_token: str, username: str, exclude_retweets: bool = T
 def clean_tweets(tweets: List[str],
                  split_sentences: bool = False,
                  remove_urls: bool = True) -> List[str]:
+    """
+    Clean-up tweets
 
+    Args:
+        tweets: List of tweets to clean
+        split_sentences: if True, will use NLTK's `sent_tokenizer` to break a tweet up into sentences
+        remove_urls: if True, will remove tweets that are only URLs
+    """
     cleaned = []
     for tweet in tweets:
         tweet = tweet.replace("\n", " ").replace("\t", " ").strip()
@@ -98,6 +127,17 @@ def save_tweets(bearer_token: str,
                 filepath: str,
                 clean_up: bool = False,
                 **clean_kwargs):
+    """
+    Look-up user by username and save their tweets to a file
+    Tweets only are saved and are separated by a newline
+
+    Args:
+        bearer_token: Twitter API user's Bearer Token
+        username: username of Twitter user you want to get tweets for
+        filepath: where you want the tweets saved to
+        clean_up: if True, will do some text cleaning to tweets. See `clean_tweets` for more info.
+        clean_kwargs: any additional arguments you want to pass to `clean_tweets`
+    """
 
     tweet_json = get_user_tweets(bearer_token=bearer_token, username=username)
     tweets = [tweet['text'] for tweet in tweet_json]

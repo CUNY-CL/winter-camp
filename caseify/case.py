@@ -177,3 +177,8 @@ def apply_tc(nunistr: str, tc: TokenCase, pattern: Pattern = None) -> str:
         return "".join(apply_cc(ch, cc) for (ch, cc) in zip(nunistr, pattern))
     raise UnknownTokenCaseError(tc)
 
+
+def apply_tc_sentence(tokens: List[str], case_patterns: List[Tuple[TokenCase, Pattern]]):
+    assert len(case_patterns) == len(tokens), f"{len(case_patterns)}, {len(tokens)}"
+    return " ".join([apply_tc(token, getattr(TokenCase, tc), None) for token, tc in zip(tokens, case_patterns)])
+
