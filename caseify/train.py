@@ -2,18 +2,27 @@ import argparse
 import json
 import os
 import pickle
-import subprocess
-from typing import List, Tuple
+from random import randint
+from typing import List
 
 import sklearn_crfsuite
-from random import randint
 from sklearn_crfsuite import metrics as crf_metrics
 
-from caseify.case import apply_tc, TokenCase, Pattern
+from caseify.case import apply_tc_sentence
 from caseify.dataset import process_dataset, save_datasets_crf_feat_format, word_tokenize, extract_feature_dict
 
 
 def train_model(train: tuple, dev: tuple):
+    """
+    Train a CRF model
+
+    Args:
+        train: tuple containing X train and y train data
+        dev: tuple containing X dev and y dev data
+
+    Returns:
+        Trained sklearn_crfsuite.CRF
+    """
 
     crf = sklearn_crfsuite.CRF(algorithm='lbfgs',
                                c1=0.1,
@@ -94,6 +103,16 @@ def run_train_job(dataset_fp: str,
 
 
 def case_correct_sentence(model, sentences: List[str]) -> List[str]:
+    """
+    Given a list of sentences, predict casing using a model
+
+    Args:
+        model: Model used to correct case. Can be any model so long as it has `predict` method
+        sentences: List of sentences to predict casing for. Casing prior to predictions does not matter
+
+    Returns:
+        List of model predictions for correct casing of sentences
+    """
 
     assert len(sentences)
 
