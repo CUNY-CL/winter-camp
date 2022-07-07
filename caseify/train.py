@@ -2,7 +2,7 @@ import argparse
 import json
 import os
 import pickle
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Optional
 
 from sklearn_crfsuite import CRF
 from sklearn_crfsuite import metrics as crf_metrics
@@ -45,7 +45,8 @@ def train_model(train: tuple, dev: tuple):
 
 
 def run_train_job(dataset_fp: str,
-                  dataset_dir: str) -> Tuple[Dict[str, Dataset], CRF, List[SentenceLabels]]:
+                  dataset_dir: str,
+                  max_examples: Optional[int] = None) -> Tuple[Dict[str, Dataset], CRF, List[SentenceLabels]]:
     """
     Train a CRF model
 
@@ -58,7 +59,7 @@ def run_train_job(dataset_fp: str,
     """
 
     print("Step #1 -- Processing dataset")
-    datasets, mixed_tokens = process_dataset(dataset_fp=dataset_fp)
+    datasets, mixed_tokens = process_dataset(dataset_fp=dataset_fp, max_examples=max_examples)
 
     print("Step #1A -- Saving datasets")
     save_datasets_crf_feat_format(datasets, dataset_dir)
@@ -137,9 +138,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--filepath", help='Path to dataset')
     parser.add_argument("-d", "--directory", help="Directory to store files generated from run")
+    parser.add_argument("-m", "--max_examples",
+                        help="If not None, sets limit on how many examples from dataset to use for run",
+                        default=None,
+                        type=int)
 
     args = parser.parse_args()
     run_train_job(
         dataset_fp=args.filepath,
-        dataset_dir=args.directory
+        dataset_dir=args.directory,
+        max_examples=args.max_examples
     )
