@@ -7,7 +7,7 @@ to an arbitrary Unicode string)."""
 
 import enum
 import unicodedata
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 from urllib.parse import urlparse
 
 
@@ -178,7 +178,21 @@ def apply_tc(nunistr: str, tc: TokenCase, pattern: Pattern = None) -> str:
     raise UnknownTokenCaseError(tc)
 
 
-def apply_tc_sentence(tokens: List[str], case_patterns: List[Tuple[TokenCase, Pattern]]):
+def apply_tc_sentence(tokens: List[str], case_patterns: List[Tuple[TokenCase, Union[Pattern, None]]]):
+    """
+    Apply token casing to a list of tokens (representing a sentence)
+
+    Args:
+        tokens: sentence separated into tokens (e.g. `tokens=nltk.word_tokenize(sentence)`)
+        case_patterns: casing and pattern to apply to each token
+
+    Returns:
+        Re-constructed sentence with applied casing
+    """
+
+    # FIXME:
+    #  Spacing is weird because punctuation (periods, commas, quotes, etc.)
+    #  are space separated from words which looks weird
     assert len(case_patterns) == len(tokens), f"{len(case_patterns)}, {len(tokens)}"
-    return " ".join([apply_tc(token, getattr(TokenCase, tc), None) for token, tc in zip(tokens, case_patterns)])
+    return " ".join([apply_tc(token, getattr(TokenCase, tc), pattern) for token, (tc, pattern) in zip(tokens, case_patterns)])
 

@@ -1,10 +1,12 @@
+import os
+from random import randint
 from typing import List
 
 import requests
 from nltk import sent_tokenize
 
 from caseify.case import is_url
-from caseify.train import run_train_job
+from caseify.train import run_train_job, case_correct_sentence, pickle
 
 
 def _get_header(bearer_token: str):
@@ -156,20 +158,44 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-b", "--bearer_token", help='Path to file containing API keys')
     parser.add_argument("-u", "--user", help="Username to get tweets for")
-    parser.add_argument("-f", "--filepath", help="Filepath to save tweets to")
     parser.add_argument("-c", "--clean", help="Clean up tweets", default=False)
     parser.add_argument("-s", "--sent_tokenize", help='If clean=True, will sentence tokenize tweets.', default=False)
     parser.add_argument("-r", "--remove_urls", help="If clean=True, will remove tweets that are hyperlinks", default=True)
     parser.add_argument("-d", "--dataset_dir", help="If not None, will trigger model training and save all artifacts to that directory", default=None)
+    parser.add_argument("-p", "--pretrained", help="If not None, filepath to model to compare Twitter model against.", default=None)
     args = parser.parse_args()
+
+    filepath = os.path.join(args.dataset_dir, "tweets.txt")
 
     save_tweets(bearer_token=args.bearer_token,
                 username=args.user,
-                filepath=args.filepath,
+                filepath=filepath,
                 clean_up=bool(args.clean),
                 split_sentences=bool(args.sent_tokenize),
                 remove_urls=bool(args.remove_urls))
 
     if args.dataset_dir:
-        run_train_job(dataset_fp=args.filepath,
-                      dataset_dir=args.dataset_dir)
+        datasets, twitter_crf, y_pred = run_train_job(dataset_fp=filepath,
+                                                      dataset_dir=args.dataset_dir)
+
+        n_examples = 25
+        test_sents = datasets['test']['lines']
+        rando_idxs = [randint(0, len(test_sents)) for _ in range(n_examples)]
+        sentences = [test_sents[i] for i in rando_idxs]
+
+        if args.pretrained is None:
+            pass
+        elif not os.path.isfile(args.pretrained):
+            print(f"Unable to find pretrained model @ {args.pretrained}. File does not exist!")
+        else:
+            with open(args.pretrained, 'rb') as infile:
+                comp_crf = pickle.load(infile)
+
+            print("Example reconstructed sentences:")
+
+            twitter_preds = case_correct_sentence(twitter_crf, sentences)
+            compare_preds = case_correct_sentence(comp_crf, sentences)
+            for twitter_pred, comp_pred, actual in zip(twitter_preds, compare_preds, sentences):
+                print(f"Actual casing:\n{actual}\n"
+                      f"Twitter model: \n{twitter_pred}\n"
+                      f"Pretrained model:\n{comp_pred}\n\n")

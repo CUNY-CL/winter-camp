@@ -33,7 +33,7 @@ def get_suffix(word: str, n: int) -> str:
     return word[-n:]
 
 
-def extract_feature_dict(tokens: List[str]) -> Tuple[SentenceFeatures, SentenceLabels]:
+def extract(tokens: List[str]) -> Tuple[SentenceFeatures, SentenceLabels]:
     """
     Extract features from tokens
 
@@ -110,6 +110,10 @@ def process_lines(lines: List[str],
     assert train_pct + test_pct + val_pct == 1
 
     shuffle(lines)
+
+    print("🚨🚨🚨🚨🚨🚨")
+    lines = lines[:1_000_000]
+
     features, labels = [], []
 
     all_words = []
@@ -117,7 +121,7 @@ def process_lines(lines: List[str],
         tokens = word_tokenize(line)
         all_words.extend(tokens)
 
-        f, l = extract_feature_dict(tokens)
+        f, l = extract(tokens)
 
         features.append(f)
         labels.append(l)
@@ -145,7 +149,9 @@ def process_lines(lines: List[str],
         }
     }
 
+    print("Computing most common mixed tokens...",end='')
     mixed_counts = get_most_common_mix(all_words)
+    print("done! ✅")
 
     return datasets, mixed_counts
 
@@ -176,7 +182,7 @@ def save_datasets_crf_feat_format(datasets: Dict[str, Dataset], dataset_dir: str
         labels = dataset['labels']
 
         output = []
-        for feature, label in zip(features, labels):
+        for feature, label in tqdm(zip(features, labels)):
 
             outs = []
             for ff, ll in zip(feature, label):
