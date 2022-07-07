@@ -161,11 +161,11 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--clean", help="Clean up tweets", default=False)
     parser.add_argument("-s", "--sent_tokenize", help='If clean=True, will sentence tokenize tweets.', default=False)
     parser.add_argument("-r", "--remove_urls", help="If clean=True, will remove tweets that are hyperlinks", default=True)
-    parser.add_argument("-d", "--dataset_dir", help="If not None, will trigger model training and save all artifacts to that directory", default=None)
+    parser.add_argument("-d", "--directory", help="If not None, will trigger model training and save all artifacts to that directory", default=None)
     parser.add_argument("-p", "--pretrained", help="If not None, filepath to model to compare Twitter model against.", default=None)
     args = parser.parse_args()
 
-    filepath = os.path.join(args.dataset_dir, "tweets.txt")
+    filepath = os.path.join(args.directory, "tweets.txt")
 
     save_tweets(bearer_token=args.bearer_token,
                 username=args.user,
@@ -174,9 +174,9 @@ if __name__ == "__main__":
                 split_sentences=bool(args.sent_tokenize),
                 remove_urls=bool(args.remove_urls))
 
-    if args.dataset_dir:
+    if args.directory:
         datasets, twitter_crf, y_pred = run_train_job(dataset_fp=filepath,
-                                                      dataset_dir=args.dataset_dir)
+                                                      dataset_dir=args.directory)
 
         n_examples = 25
         test_sents = datasets['test']['lines']
