@@ -1,11 +1,9 @@
 from typing import List
 
-
 import requests
-import os
+from case import is_url
 from nltk import sent_tokenize
 from train import run_train_job
-from case import is_url
 
 
 def _get_header(bearer_token: str):
