@@ -1,7 +1,7 @@
 import os
 from collections import Counter
 from random import shuffle, seed
-from typing import List, Dict, Tuple, Union
+from typing import List, Dict, Tuple, Union, Optional
 
 import pandas as pd
 from caseify.case import get_tc, TokenCase
@@ -106,13 +106,26 @@ def process_lines(lines: List[str],
                   train_pct: float = 0.8,
                   test_pct: float = 0.1,
                   val_pct: float = 0.1) -> Tuple[Dict[str, Dataset], Dict[str, str]]:
+    """
+    Extract features & labels and split it into train, test and dev sets
 
+    Args:
+        lines: filepath to dataset
+        train_pct: percentage of data as a float (0, 1) to use for training data
+        test_pct: percentage of data as a float (0, 1) to use for testing data
+        dev_pct: percentage of data as a float (0, 1) to use for dev data
+        max_examples: if not None, will cut off number of examples from dataset to this number
+
+    Returns:
+        Constructed dataset in a dict of {`split name`: dataset}
+        Dictionary containing most popular mixed form of all mixed case words in dataset
+    Returns:
+        Constructed dataset in a dict of {`split name`: dataset}
+        Dictionary containing most popular mixed form of all mixed case words in dataset
+    """
     assert train_pct + test_pct + val_pct == 1
 
     shuffle(lines)
-
-    print("🚨🚨🚨🚨🚨🚨")
-    lines = lines[:1_000_000]
 
     features, labels = [], []
 
@@ -159,9 +172,24 @@ def process_lines(lines: List[str],
 def process_dataset(dataset_fp: str,
                     train_pct: float = 0.8,
                     test_pct: float = 0.1,
-                    val_pct: float = 0.1) -> Tuple[Dict[str, Dataset], Dict[str, str]]:
+                    dev_pct: float = 0.1,
+                    max_examples: Optional[int] = None) -> Tuple[Dict[str, Dataset], Dict[str, str]]:
+    """
+    Wrapper for `process_lines` that first load in a dataset then extract features and labels from it and split it
+    into train, test and dev sets
 
-    assert train_pct + test_pct + val_pct == 1
+    Args:
+        dataset_fp: filepath to dataset
+        train_pct: percentage of data as a float (0, 1) to use for training data
+        test_pct: percentage of data as a float (0, 1) to use for testing data
+        dev_pct: percentage of data as a float (0, 1) to use for dev data
+        max_examples: if not None, will cut off number of examples from dataset to this number
+
+    Returns:
+        Constructed dataset in a dict of {`split name`: dataset}
+        Dictionary containing most popular mixed form of all mixed case words in dataset
+    """
+    assert train_pct + test_pct + dev_pct == 1
 
     print(f"Loading dataset from {dataset_fp}...", end='')
     with open(dataset_fp, 'r') as infile:
@@ -169,10 +197,26 @@ def process_dataset(dataset_fp: str,
 
     print(f"done! ✅\nFound {len(lines)} examples.")
 
+    if max_examples:
+        assert max_examples > 1
+        print(f"Capping # of lines at {max_examples}")
+        lines = lines[:max_examples]
+
     return process_lines(lines)
 
 
 def save_datasets_crf_feat_format(datasets: Dict[str, Dataset], dataset_dir: str):
+    """
+    Save the dataset as CRFsuite feature file
+
+    Args:
+        datasets:
+            Collection of datasets you wish to save
+        dataset_dir:
+            Directory to save files to. Files are saved based on their dict key name.
+            e.g. if key = "train" then the tokens are saved as:
+                `os.path.join(dataset_dir, "train" + ".tok")`
+    """
 
     if not os.path.isdir(dataset_dir):
         os.mkdir(dataset_dir)
@@ -182,6 +226,11 @@ def save_datasets_crf_feat_format(datasets: Dict[str, Dataset], dataset_dir: str
         labels = dataset['labels']
 
         output = []
+
+        # FIXME
+        #   This scales terribly
+        #   Need smarter way of turning dict to string
+        #   This is triple for loop!
         for feature, label in tqdm(zip(features, labels)):
 
             outs = []
