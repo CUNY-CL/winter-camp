@@ -14,6 +14,14 @@ Campbell](mailto:ecampbell4@gradcenter.cuny.edu)
         _Note_: Neither function performs I/O. 
         Results are saved in `run_train_job` in [train.py](caseify/train.py) 
 
+- I break down the individual parts below, however, to run what 
+I did, you should run:
+    ```
+    chmod +x script.sh
+    ./script.sh
+    ```
+ This will generate a `submission` folder in the repo
+
 ## Model training end-to-end
 - Code to build a dataset, train a model and evaluate that model
  can be found in [train.py](caseify/train.py)
