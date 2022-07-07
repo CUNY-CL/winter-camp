@@ -15,7 +15,7 @@ cd ../../
 pip install -e .
 
 # Train model on news corpus
-# Set --max_examples to 1,000,000 just so things run quickly (my laptop is not the strongest...)
+# Set --max_examples to 100,000 just so things run quickly (my laptop is not the strongest...)
 python caseify/train.py \
  --filepath submission/data/news.2007.en.shuffled.deduped \
  --directory submission/data/news --max_examples 100000
