@@ -1,16 +1,11 @@
-import requests
-import json
 from typing import List
-from urllib.parse import urlparse
+
+
+import requests
+import os
 from nltk import sent_tokenize
-
-
-def is_url(text: str):
-    try:
-        result = urlparse(text)
-        return all([result.scheme, result.netloc])
-    except:
-        return False
+from train import run_train_job
+from case import is_url
 
 
 def _get_header(bearer_token: str):
@@ -86,10 +81,10 @@ def clean_tweets(tweets: List[str],
 
     cleaned = []
     for tweet in tweets:
+        tweet = tweet.replace("\n", " ").replace("\t", " ").strip()
+
         if remove_urls and is_url(tweet):
             continue
-
-        tweet = tweet.strip()
 
         if split_sentences:
             cleaned.extend(sent_tokenize(tweet))
@@ -112,9 +107,6 @@ def save_tweets(bearer_token: str,
         print(f"Cleaning {len(tweets)} with kwargs={clean_kwargs}")
         tweets = clean_tweets(tweets=tweets, **clean_kwargs)
 
-    print(len(tweets))
-    print(tweets[0])
-
     with open(filepath, 'w+') as f:
         f.write("\n".join(tweets))
 
@@ -129,7 +121,7 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--clean", help="Clean up tweets", default=False)
     parser.add_argument("-s", "--sent_tokenize", help='If clean=True, will sentence tokenize tweets.', default=False)
     parser.add_argument("-r", "--remove_urls", help="If clean=True, will remove tweets that are hyperlinks", default=True)
-
+    parser.add_argument("-d", "--dataset_dir", help="If not None, will trigger model training and save all artifacts to that directory", default=None)
     args = parser.parse_args()
 
     save_tweets(bearer_token=args.bearer_token,
@@ -138,3 +130,7 @@ if __name__ == "__main__":
                 clean_up=bool(args.clean),
                 split_sentences=bool(args.sent_tokenize),
                 remove_urls=bool(args.remove_urls))
+
+    if args.dataset_dir:
+        run_train_job(dataset_fp=args.filepath,
+                      dataset_dir=args.dataset_dir)

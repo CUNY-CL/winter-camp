@@ -4,8 +4,10 @@ import pickle
 import subprocess
 
 import sklearn_crfsuite
-from dataset import process_dataset, datasets_to_files
+from dataset import process_dataset, datasets_to_files, word_tokenize, extract_feature_dict
+from case import apply_tc, TokenCase, Pattern
 from sklearn_crfsuite import metrics as crf_metrics
+from typing import List, Tuple
 
 
 def train_model(train: tuple, dev: tuple):
@@ -58,13 +60,46 @@ def run_train_job(dataset_fp: str,
     print(crf_metrics.flat_classification_report(y_gold, y_pred, labels=labels))
 
     pred_fp = os.path.join(dataset_dir, "test.predictions")
-
+    print(y_pred[:5])
     output = ""
     for line in y_pred:
         output += "\n".join(line) + '\n\n'
 
     with open(pred_fp, 'w') as outfile:
         outfile.write(output)
+
+    idx = 10
+    sentences = datasets['test']['lines'][:idx]
+
+    case_corrected = case_correct_sentence(crf, sentences)
+    for corrected, actual in zip(case_corrected, sentences):
+        print(f"True:{actual}\nPred:{corrected}\n\n")
+
+
+def apply_tc_sentence(tokens: List[str], case_patterns: List[Tuple[TokenCase, Pattern]]):
+    assert len(case_patterns) == len(tokens), f"{len(case_patterns)}, {len(tokens)}"
+    return " ".join([apply_tc(token, getattr(TokenCase, tc), None) for token, tc in zip(tokens, case_patterns)])
+
+
+def case_correct_sentence(model, sentences: List[str]) -> List[str]:
+
+    assert len(sentences)
+
+    inputs = []
+    all_tokens = []
+    for sentence in sentences:
+        tokens = word_tokenize(sentence)
+        all_tokens.append(tokens)
+        features, _ = extract_feature_dict(tokens)
+        inputs.append(features)
+
+    pred_casing = model.predict(inputs)
+
+    outputs = []
+    for tokens, pred in zip(all_tokens, pred_casing):
+        outputs.append(apply_tc_sentence(tokens, pred))
+
+    return outputs
 
 
 if __name__ == '__main__':
