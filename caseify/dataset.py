@@ -4,7 +4,7 @@ from random import shuffle, seed
 from typing import List, Dict, Tuple, Union
 
 import pandas as pd
-from .case import get_tc, TokenCase
+from caseify.case import get_tc, TokenCase
 from nltk import word_tokenize
 from tqdm import tqdm
 
