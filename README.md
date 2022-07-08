@@ -6,7 +6,8 @@ Garza](mailto:garza.elizabeth9@gmail.com), and [Emily
 Campbell](mailto:ecampbell4@gradcenter.cuny.edu)
 
 - Answers to questions from the [notebook](README.ipynb) can be found under the question
-
+    - Answers to the reading comprehension however can be found [here](reading_comp.md)
+    
 - In [dataset.py](caseify/dataset.py) you can find...
     - Feature extraction code in `extract`
     - Mixed case dictionary code in `get_most_common_mix` 
