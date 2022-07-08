@@ -37,7 +37,7 @@ I did, you should run:
     - You can call train a CRF model for case restoration using the following:
         ```python
         python train.py \ 
-          --filepath news.2019.en.shuffled.deduped.gz \ 
+          --filepath your_dataset \ 
           --directory your_directory
         ```
       
