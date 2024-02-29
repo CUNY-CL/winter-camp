@@ -12,16 +12,16 @@ chmod +x get_dataset.sh
 cd ../../
 
 # Pip install module
-pip install -e .
+pip3 install -e .
 
 # Train model on news corpus
 # Set --max_examples to 100,000 just so things run quickly (my laptop is not the strongest...)
-python caseify/train.py \
+python3 caseify/train.py \
  --filepath submission/data/news.2007.en.shuffled.deduped \
  --directory submission/data/news --max_examples 100000
 
 # Train twitter model on @dril tweets
-python caseify/tweets.py \
+python3 caseify/tweets.py \
   --bearer_token AAAAAAAAAAAAAAAAAAAAAAcpegEAAAAAVGCIJ%2Fv%2BRHcBPK4%2FDSNtN29yc34%3DUUXrgRcyHDHA9PRbEOciT5MB6IKsV8ByAef62UPhZSdaMMhz1i \
   --user dril \
   --clean 1 \
